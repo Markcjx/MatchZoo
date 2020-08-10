@@ -14,6 +14,7 @@ _url = "https://download.microsoft.com/download/E/5/F/" \
 
 
 def load_data(
+    rootpath: str,
     stage: str = 'train',
     task: str = 'ranking',
     filtered: bool = False,
@@ -22,6 +23,7 @@ def load_data(
     """
     Load WikiQA data.
 
+    :param rootpath:
     :param stage: One of `train`, `dev`, and `test`.
     :param task: Could be one of `ranking`, `classification` or a
         :class:`matchzoo.engine.BaseTask` instance.
@@ -36,7 +38,7 @@ def load_data(
         raise ValueError(f"{stage} is not a valid stage."
                          f"Must be one of `train`, `dev`, and `test`.")
 
-    data_root = _download_data()
+    data_root = Path(rootpath).joinpath('WikiQACorpus') if rootpath else _download_data()
     file_path = data_root.joinpath(f'WikiQA-{stage}.tsv')
     data_pack = _read_data(file_path)
     if filtered and stage in ('dev', 'test'):
