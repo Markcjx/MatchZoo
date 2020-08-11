@@ -78,7 +78,7 @@ class Mix(BaseModel):
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
-        ngram_product = [matching_layer(m, n) for m in left_ngrams for n in right_ngrams]
+        ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
         ngram_output = keras.backend.stack(ngram_product,axis=-1)
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
