@@ -126,6 +126,6 @@ class Mix(BaseModel):
         layers = [keras.layers.Conv1D(kernel_count,
                                       kernel_size,
                                       padding=padding,
-                                      activation=activation, name='ngram_conv1d_' + kernel_size) for kernel_size in
+                                      activation=activation, name='ngram_conv1d_' + str(kernel_size)) for kernel_size in
                   range(1, n + 1)]
         return layers
