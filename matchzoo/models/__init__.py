@@ -12,7 +12,7 @@ from .drmmtks import DRMMTKS
 from .drmm import DRMM
 from .anmm import ANMM
 from .mvlstm import MVLSTM
-
+from .mix import Mix
 
 def list_available() -> list:
     from matchzoo.engine.base_model import BaseModel
