@@ -74,11 +74,11 @@ class Mix(BaseModel):
 
         # Interaction
 
-        ngram_layers = self._ngram_conv_layers(32,3,'same','relu')
+        ngram_layers = self._ngram_conv_layers(32, 3, 'same', 'relu')
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
-        ngram_product = [matching_layer[m,n] for m in left_ngrams for n in right_ngrams]
+        ngram_product = [matching_layer[m, n] for m in left_ngrams for n in right_ngrams]
         ngram_output = keras.layers.Concatenate(axis=-1)(ngram_product)
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
@@ -92,7 +92,7 @@ class Mix(BaseModel):
         # Dynamic Pooling
         # dpool_layer = matchzoo.layers.DynamicPoolingLayer(
         #     *self._params['dpool_size'])
-        pool_layer = keras.layers.MaxPooling2D(pool_size=(3,3),strides=(1,1),padding='same')
+        pool_layer = keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(1, 1), padding='same')
         embed_pool = pool_layer(ngram_output)
         embed_flat = keras.layers.Flatten()(embed_pool)
         x = keras.layers.Dropout(rate=self._params['dropout_rate'])(embed_flat)
@@ -123,8 +123,9 @@ class Mix(BaseModel):
             padding: str,
             activation: str
     ) -> typing.Any:
-        layers = [keras.layers.Conv2D(kernel_count,
-                                     kernel_size,
-                                     padding=padding,
-                                     activation=activation) for kernel_size in range(1,n+1)]
+        layers = [keras.layers.Conv1D(kernel_count,
+                                      kernel_size,
+                                      padding=padding,
+                                      activation=activation, name='ngram_conv1d_' + kernel_size) for kernel_size in
+                  range(1, n + 1)]
         return layers
