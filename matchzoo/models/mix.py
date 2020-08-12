@@ -10,6 +10,7 @@ from matchzoo.engine.param_table import ParamTable
 from matchzoo.engine import hyper_spaces
 from matchzoo.preprocessors.units import Vocabulary
 import numpy as np
+from keras import backend as K
 import tensorflow as tf
 
 
@@ -161,7 +162,8 @@ class Mix(BaseModel):
         padding
         """
         assert n > 0
-        padding_input = _input + [0] * (n - 1)
+        input = K.eval(_input).astype('int')
+        padding_input = input + [0] * (n - 1)
         term_list = [self._params['vocab_unit'].state['index_term'][i] for i in padding_input]
         ngram_terms = list(zip(*[term_list[i:] for i in range(n)]))
         ngram_idf = [max(terms, key=lambda x: self._params['idf_table'][x]) for terms in ngram_terms]
@@ -170,5 +172,6 @@ class Mix(BaseModel):
     def gen_idf_mask(self, left_idfs, right_idfs):
         masks = [np.dot(np.array(left).T, np.array(right)) for left in left_idfs for right in right_idfs]
         con_mask = np.concatenate(masks, axis=-1)
-        con_mask_tensor = tf.convert_to_tensor(con_mask)
+
+        con_mask_tensor = K.constant(con_mask)
         return con_mask_tensor
