@@ -2,12 +2,16 @@
 import typing
 
 import keras
-import itertools
+
 import matchzoo
 from matchzoo.engine.base_model import BaseModel
 from matchzoo.engine.param import Param
 from matchzoo.engine.param_table import ParamTable
 from matchzoo.engine import hyper_spaces
+from mathzoo.preprocessors.units import Vocabulary
+import numpy as np
+import tensorflow as tf
+
 
 
 class Mix(BaseModel):
@@ -52,6 +56,12 @@ class Mix(BaseModel):
                                               q=0.01),
             desc="The dropout rate."
         ))
+        params.add(Param(
+            name='vocab_unit', value=Vocabulary(), desc='the Vocabulary'
+        ))
+        params.add(Param(
+            name='idf_table', value={}, desc='get terms idf'
+        ))
         return params
 
     def build(self):
@@ -71,15 +81,19 @@ class Mix(BaseModel):
         embedding = self._make_embedding_layer()
         embed_left = embedding(input_left)
         embed_right = embedding(input_right)
-
         # Interaction
 
         ngram_layers = self._ngram_conv_layers(32, 3, 'same', 'relu')
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
+        left_idfs = [self.get_ngram_idf(input_left,n) for n in range(1,3)]
+        right_idfs = [self.get_ngram_idf(input_right,n) for n in range(1,3)]
+        mask_tensor = self.gen_idf_mask(left_idfs,right_idfs)
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
+        mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
-        ngram_output = keras.layers.Concatenate(axis=-1,name='concate')(ngram_product)
+        ngram_output = keras.layers.Concatenate(axis=-1, name='concate')(ngram_product)
+        ngram_output   = mask_layer([ngram_output,mask_layer])
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
                 ngram_output,
@@ -129,3 +143,23 @@ class Mix(BaseModel):
                                       activation=activation, name='ngram_conv1d_' + str(kernel_size)) for kernel_size in
                   range(1, n + 1)]
         return layers
+
+    def input_to_term(self, _input: list) -> list:
+        return [self._params['vocab_unit'].state['index_term'][i] for i in _input]
+
+    def get_ngram_idf(self, _input: list, n: int) -> list:
+        """
+        padding
+        """
+        assert n > 0
+        padding_input = _input + [0] * (n - 1)
+        term_list = [self._params['vocab_unit'].state['index_term'][i] for i in padding_input]
+        ngram_terms = list(zip(*[term_list[i:] for i in range(n)]))
+        ngram_idf = [max(terms,key=lambda x:self._params['idf_table'][x]) for terms in ngram_terms]
+        return ngram_idf
+
+    def gen_idf_mask(self,left_idfs,right_idfs):
+        masks = [np.dot(np.array(left).T,np.array(right)) for left in left_idfs for right in right_idfs]
+        con_mask = np.concatenate(masks,axis=-1)
+        con_mask_tensor = tf.convert_to_tensor(con_mask)
+        return con_mask_tensor
