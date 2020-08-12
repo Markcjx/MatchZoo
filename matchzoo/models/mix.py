@@ -8,7 +8,7 @@ from matchzoo.engine.base_model import BaseModel
 from matchzoo.engine.param import Param
 from matchzoo.engine.param_table import ParamTable
 from matchzoo.engine import hyper_spaces
-from mathzoo.preprocessors.units import Vocabulary
+from matchzoo.preprocessors.units import Vocabulary
 import numpy as np
 import tensorflow as tf
 
