@@ -89,10 +89,15 @@ class Mix(BaseModel):
         right_idfs = [self.get_ngram_idf(input_right, n) for n in range(1, 3)]
         mask_tensor = self.gen_idf_mask(left_idfs, right_idfs)
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
+        print('92')
         mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
+        print('94')
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
+        print('96')
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate')(ngram_product)
+        print('98')
         ngram_output = mask_layer([ngram_output, mask_tensor])
+        print('100')
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
                 ngram_output,
