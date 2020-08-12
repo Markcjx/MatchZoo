@@ -69,6 +69,7 @@ class Mix(BaseModel):
 
         MatchPyramid text matching as image recognition.
         """
+        print('1')
         input_left, input_right = self._make_inputs()
         # input_dpool_index = keras.layers.Input(
         #     name='dpool_index',
@@ -81,13 +82,17 @@ class Mix(BaseModel):
         embed_left = embedding(input_left)
         embed_right = embedding(input_right)
         # Interaction
-
+        print('2')
         ngram_layers = self._ngram_conv_layers(32, 3, 'same', 'relu')
+        print('3')
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
         left_idfs = [self.get_ngram_idf(input_left, n) for n in range(1, 3)]
+        print('4')
         right_idfs = [self.get_ngram_idf(input_right, n) for n in range(1, 3)]
+        print('5')
         mask_tensor = self.gen_idf_mask(left_idfs, right_idfs)
+        print('6')
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
         print('92')
         mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
