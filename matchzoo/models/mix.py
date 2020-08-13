@@ -106,6 +106,8 @@ class Mix(BaseModel):
         print('92')
         mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
         print('94')
+        [print(x.shape) for x in left_ngrams]
+        [print(x.shape) for x in left_idfs]
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
         print('95')
         mask_tensors = [matching_layer([m, n]) for m in left_idfs for n in right_idfs]
