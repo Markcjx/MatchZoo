@@ -13,7 +13,7 @@ import numpy as np
 from keras import backend as K
 from keras.layers import Lambda
 import tensorflow as tf
-
+import pdb
 
 class Mix(BaseModel):
     """
@@ -141,6 +141,7 @@ class Mix(BaseModel):
         inputs = [input_left, input_right]
         print('133')
         x_out = self._make_output_layer()(x)
+        pdb.set_trace()
         self._backend = keras.Model(inputs=inputs, outputs=x_out)
 
     @classmethod
