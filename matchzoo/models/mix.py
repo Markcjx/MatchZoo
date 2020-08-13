@@ -165,13 +165,8 @@ class Mix(BaseModel):
         """
         assert n > 0
         print('into getngram')
-        with tf.Session() as sess:
-            _input.eval()
         pad = np.array([0,1])
         padding_input = tf.pad(_input,pad,name='padding')
-        with tf.Session() as sess:
-            _input.eval()
-            padding_input.eval()
         term_list = [self._params['vocab_unit'].state['index_term'][i] for i in padding_input]
         ngram_terms = list(zip(*[term_list[i:] for i in range(n)]))
         ngram_idf = K.constant([max(terms, key=lambda x: self._params['idf_table'][x]) for terms in ngram_terms])
