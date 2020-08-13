@@ -95,20 +95,19 @@ class Mix(BaseModel):
             idf_tensor = tf.py_function(self.get_ngram_idf, [input_left, n], tf.dtypes.float32)
             idf_tensor.set_shape(input_left.get_shape())
             left_idfs.append(idf_tensor)
-        rihgt_idfs = []
+        right_idfs = []
         for n in range(1, 3):
             idf_tensor = tf.py_function(self.get_ngram_idf, [input_right, n], tf.dtypes.float32)
             idf_tensor.set_shape(input_right.get_shape())
-            rihgt_idfs.append(idf_tensor)
+            right_idfs.append(idf_tensor)
 
-        print('4')
-        right_idfs = [tf.py_function(self.get_ngram_idf, [input_right, n], tf.dtypes.float32) for n in range(1, 3)]
         print('6')
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
         print('92')
         mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
         print('94')
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
+        print('95')
         mask_tensors = [matching_layer([m, n]) for m in left_idfs for n in right_idfs]
         print('96')
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
