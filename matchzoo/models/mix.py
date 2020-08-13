@@ -91,14 +91,14 @@ class Mix(BaseModel):
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
         print('3.5')
         left_idfs=[]
-        for n in range(1,3):
+        for n in range(1,4):
             idf_tensor = tf.py_function(self.get_ngram_idf, [input_left, n], tf.dtypes.float32)
-            idf_tensor.set_shape(input_left.get_shape())
+            idf_tensor.set_shape(left_ngrams[0].get_shape())
             left_idfs.append(idf_tensor)
         right_idfs = []
-        for n in range(1, 3):
+        for n in range(1, 4):
             idf_tensor = tf.py_function(self.get_ngram_idf, [input_right, n], tf.dtypes.float32)
-            idf_tensor.set_shape(input_right.get_shape())
+            idf_tensor.set_shape(right_ngrams[0].get_shape())
             right_idfs.append(idf_tensor)
 
         print('6')
