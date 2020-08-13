@@ -162,7 +162,8 @@ class Mix(BaseModel):
         padding
         """
         assert n > 0
-        input = _input.eval().astype('int')
+        with K.get_session() as sess:
+            input = _input.eval().astype('int')
         padding_input = input + [0] * (n - 1)
         term_list = [self._params['vocab_unit'].state['index_term'][i] for i in padding_input]
         ngram_terms = list(zip(*[term_list[i:] for i in range(n)]))
