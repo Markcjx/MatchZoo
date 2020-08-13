@@ -182,6 +182,7 @@ class Mix(BaseModel):
             padding_input = np.concatenate((_input,pad),axis=-1)
         uniidf = list(map(lambda x:self._params['vocab_unit'].state['index_term'][self._params['vocab_unit'].state['index_term'][int(x)]], padding_input))
         ngramidf = []
+        np.expand_dims
         for i in uniidf:
-            ngramidf.append([max(i[x:x+n]) for x in range(len(i) - n + 1)])
+            ngramidf.append(np.stack([[max(i[x:x+n]) for x in range(len(i) - n + 1)] for _ in range(32)]))
         return np.array(ngramidf)
