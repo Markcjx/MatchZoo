@@ -15,6 +15,7 @@ from keras.layers import Lambda
 import tensorflow as tf
 import pdb
 
+
 class Mix(BaseModel):
     """
     Mix Model.
@@ -90,8 +91,8 @@ class Mix(BaseModel):
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
         print('3.5')
-        left_idfs=[]
-        for n in range(1,4):
+        left_idfs = []
+        for n in range(1, 4):
             idf_tensor = tf.py_function(self.get_ngram_idf, [input_left, n], tf.dtypes.float32)
             idf_tensor.set_shape(left_ngrams[0].get_shape())
             left_idfs.append(idf_tensor)
@@ -101,13 +102,13 @@ class Mix(BaseModel):
             right_idf_tensor.set_shape(right_ngrams[0].get_shape())
             right_idfs.append(right_idf_tensor)
 
-        for i in [left_ngrams,right_ngrams,left_idfs,right_idfs]:
+        for i in [left_ngrams, right_ngrams, left_idfs, right_idfs]:
             for j in i:
                 print(j.shape)
         print('6')
-        left_ngram_out = [left_ngrams[i] * left_idfs[i]for i in range(len(left_ngrams))]
+        left_ngram_out = [Lambda(self.mul)([left_ngrams[i], left_idfs[i]]) for i in range(len(left_ngrams))]
         print('92')
-        right_ngrams_out = [right_ngrams[i] * right_idfs[i] for i in range(len(right_ngrams))]
+        right_ngrams_out = [Lambda(self.mul)([right_ngrams[i], right_idfs[i]]) for i in range(len(right_ngrams))]
         print('94')
         print(left_ngram_out[0].shape)
         print(right_ngrams_out[0].shape)
@@ -141,7 +142,6 @@ class Mix(BaseModel):
         inputs = [input_left, input_right]
         print('133')
         x_out = self._make_output_layer()(x)
-        pdb.set_trace()
         self._backend = keras.Model(inputs=inputs, outputs=x_out)
 
     @classmethod
@@ -184,11 +184,17 @@ class Mix(BaseModel):
         print('into getngram')
         padding_input = _input
         if n > 1:
-            pad = np.array([[0]*(n-1)] * int(_input.shape[0]))
-            padding_input = np.concatenate((_input,pad),axis=-1)
-        uniidf = list(map(lambda x:self._params['vocab_unit'].state['index_term'][self._params['vocab_unit'].state['index_term'][int(x)]], padding_input))
+            pad = np.array([[0] * (n - 1)] * int(_input.shape[0]))
+            padding_input = np.concatenate((_input, pad), axis=-1)
+        uniidf = list(map(lambda x: self._params['vocab_unit'].state['index_term'][
+            self._params['vocab_unit'].state['index_term'][int(x)]], padding_input))
         ngramidf = []
         np.expand_dims
         for i in uniidf:
-            ngramidf.append(np.stack([[max(i[x:x+n]) for x in range(len(i) - n + 1)] for _ in range(32)]))
+            ngramidf.append(np.stack([[max(i[x:x + n]) for x in range(len(i) - n + 1)] for _ in range(32)]))
         return np.array(ngramidf)
+
+    def mul(self, _input):
+        assert len(_input) == 2
+        left, right = _input
+        return left * right
