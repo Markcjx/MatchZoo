@@ -104,11 +104,10 @@ class Mix(BaseModel):
         for i in [left_ngrams,right_ngrams,left_idfs,right_idfs]:
             for j in i:
                 print(j.shape)
-        mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
         print('6')
-        left_ngram_out = [mask_layer([left_ngrams[i], left_idfs[i]]) for i in range(len(left_ngrams))]
+        left_ngram_out = [matchzoo.layers.MatchingLayer(matching_type='mul')([left_ngrams[i], left_idfs[i]]) for i in range(len(left_ngrams))]
         print('92')
-        right_ngrams_out = [mask_layer([right_ngrams[i], right_idfs[i]]) for i in range(len(right_ngrams))]
+        right_ngrams_out = [matchzoo.layers.MatchingLayer(matching_type='mul')([right_ngrams[i], right_idfs[i]]) for i in range(len(right_ngrams))]
         print('94')
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
         [print(x.shape) for x in left_ngrams]
