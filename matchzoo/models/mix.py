@@ -125,16 +125,20 @@ class Mix(BaseModel):
                 self._params['padding'],
                 self._params['activation']
             )
-
+        print('128')
         # Dynamic Pooling
         # dpool_layer = matchzoo.layers.DynamicPoolingLayer(
         #     *self._params['dpool_size'])
         pool_layer = keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(1, 1), padding='same')
+        print('129')
         embed_pool = pool_layer(ngram_output)
+        print('130')
         embed_flat = keras.layers.Flatten()(embed_pool)
+        print('131')
         x = keras.layers.Dropout(rate=self._params['dropout_rate'])(embed_flat)
-
+        print('132')
         inputs = [input_left, input_right]
+        print('133')
         x_out = self._make_output_layer()(x)
         self._backend = keras.Model(inputs=inputs, outputs=x_out)
 
