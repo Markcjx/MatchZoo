@@ -1,6 +1,7 @@
 import sys
 sys.path.append('D:\\mine\\MatchZoo')
 import matchzoo as mz
+import tensorflow as tf
 model = mz.models.Mix()
 # model.params['idf_table'] = idf_df['idf']
 ranking_task = mz.tasks.Ranking(loss=mz.losses.RankHingeLoss())
@@ -21,3 +22,4 @@ model.params['dpool_size'] = [3, 10]
 model.params['optimizer'] = 'adam'
 model.params['dropout_rate'] = 0.1
 model.build()
+tf.reduce_max()

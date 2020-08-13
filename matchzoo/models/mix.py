@@ -90,9 +90,19 @@ class Mix(BaseModel):
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
         print('3.5')
-        left_idfs = [Lambda(self.get_ngram_idf,arguments={'n':n})(input_left) for n in range(1, 3)]
+        left_idfs=[]
+        for n in range(1,3):
+            idf_tensor = tf.py_function(self.get_ngram_idf, [input_left, n], tf.dtypes.float32)
+            idf_tensor.set_shape(input_left.get_shape())
+            left_idfs.append(idf_tensor)
+        rihgt_idfs = []
+        for n in range(1, 3):
+            idf_tensor = tf.py_function(self.get_ngram_idf, [input_right, n], tf.dtypes.float32)
+            idf_tensor.set_shape(input_right.get_shape())
+            rihgt_idfs.append(idf_tensor)
+
         print('4')
-        right_idfs = [Lambda(self.get_ngram_idf,arguments={'n':n})(input_right) for n in range(1, 3)]
+        right_idfs = [tf.py_function(self.get_ngram_idf, [input_right, n], tf.dtypes.float32) for n in range(1, 3)]
         print('6')
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
         print('92')
@@ -165,9 +175,12 @@ class Mix(BaseModel):
         """
         assert n > 0
         print('into getngram')
-        pad = np.array([[0,0],[0,1]])
-        padding_input = tf.pad(_input,pad,name='padding')
-        term_list = [self._params['vocab_unit'].state['index_term'][i] for i in padding_input]
-        ngram_terms = list(zip(*[term_list[i:] for i in range(n)]))
-        ngram_idf = K.constant([max(terms, key=lambda x: self._params['idf_table'][x]) for terms in ngram_terms])
-        return ngram_idf
+        padding_input = _input
+        if n > 1:
+            pad = np.array([[0]*(n-1)] * int(_input.shape[0]))
+            padding_input = np.concatenate((_input,pad),axis=-1)
+        uniidf = list(map(lambda x:self._params['vocab_unit'].state['index_term'][self._params['vocab_unit'].state['index_term'][int(x)]], padding_input))
+        ngramidf = []
+        for i in uniidf:
+            ngramidf.append([max(i[x:x+n]) for x in range(len(i) - n + 1)])
+        return np.array(ngramidf)
