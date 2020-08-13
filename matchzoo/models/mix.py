@@ -165,7 +165,7 @@ class Mix(BaseModel):
         """
         assert n > 0
         print('into getngram')
-        pad = np.array([0,1])
+        pad = np.array([[0,1]])
         padding_input = tf.pad(_input,pad,name='padding')
         term_list = [self._params['vocab_unit'].state['index_term'][i] for i in padding_input]
         ngram_terms = list(zip(*[term_list[i:] for i in range(n)]))
