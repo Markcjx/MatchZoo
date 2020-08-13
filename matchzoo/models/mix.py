@@ -91,17 +91,9 @@ class Mix(BaseModel):
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
         print('3.5')
-        left_idfs = []
-        for n in range(1, 4):
-            idf_tensor = tf.py_function(self.get_ngram_idf, [input_left, n], tf.dtypes.float32)
-            idf_tensor.set_shape(left_ngrams[0].get_shape())
-            left_idfs.append(idf_tensor)
-        right_idfs = []
-        for n in range(1, 4):
-            right_idf_tensor = tf.py_function(self.get_ngram_idf, [input_right, n], tf.dtypes.float32)
-            right_idf_tensor.set_shape(right_ngrams[0].get_shape())
-            right_idfs.append(right_idf_tensor)
-
+        left_idfs = [Lambda(self.convert_to_idf_tensor,arguments={'n':n,'shape':left_ngrams[0].get_shape()})(input_left) for n in range(1,4)]
+        print('4')
+        right_idfs = [Lambda(self.convert_to_idf_tensor,arguments={'n':n,'shape':right_ngrams[0].get_shape()})(input_right) for n in range(1,4)]
         for i in [left_ngrams, right_ngrams, left_idfs, right_idfs]:
             for j in i:
                 print(j.shape)
@@ -198,3 +190,8 @@ class Mix(BaseModel):
         assert len(_input) == 2
         left, right = _input
         return left * right
+
+    def convert_to_idf_tensor(self,_input,n,shape):
+        idf_tensor = tf.py_function(self.get_ngram_idf, [_input, n], tf.dtypes.float32)
+        idf_tensor.set_shape(shape)
+        return idf_tensor
