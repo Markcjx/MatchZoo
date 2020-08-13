@@ -97,9 +97,13 @@ class Mix(BaseModel):
             left_idfs.append(idf_tensor)
         right_idfs = []
         for n in range(1, 4):
-            idf_tensor = tf.py_function(self.get_ngram_idf, [input_right, n], tf.dtypes.float32)
-            idf_tensor.set_shape(right_ngrams[0].get_shape())
-            right_idfs.append(idf_tensor)
+            right_idf_tensor = tf.py_function(self.get_ngram_idf, [input_right, n], tf.dtypes.float32)
+            right_idf_tensor.set_shape(right_ngrams[0].get_shape())
+            right_idfs.append(right_idf_tensor)
+
+        for i in [left_ngrams,right_ngrams,left_idfs,right_idfs]:
+            for j in i:
+                print(j.shape)
         mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
         print('6')
         left_ngram_out = [mask_layer([left_ngrams[i], left_idfs[i]]) for i in range(len(left_ngrams))]
