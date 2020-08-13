@@ -88,11 +88,11 @@ class Mix(BaseModel):
         print('3')
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
-        left_idfs = [self.get_ngram_idf(input_left, n) for n in range(1, 3)]
-        print('4')
-        right_idfs = [self.get_ngram_idf(input_right, n) for n in range(1, 3)]
-        print('5')
-        mask_tensor = self.gen_idf_mask(left_idfs, right_idfs)
+        # left_idfs = [self.get_ngram_idf(input_left, n) for n in range(1, 3)]
+        # print('4')
+        # right_idfs = [self.get_ngram_idf(input_right, n) for n in range(1, 3)]
+        # print('5')
+        # mask_tensor = self.gen_idf_mask(left_idfs, right_idfs)
         print('6')
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
         print('92')
@@ -102,7 +102,7 @@ class Mix(BaseModel):
         print('96')
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate')(ngram_product)
         print('98')
-        ngram_output = mask_layer([ngram_output, mask_tensor])
+        # ngram_output = mask_layer([ngram_output, mask_tensor])
         print('100')
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
@@ -157,7 +157,7 @@ class Mix(BaseModel):
     def input_to_term(self, _input: list) -> list:
         return [self._params['vocab_unit'].state['index_term'][i] for i in _input]
 
-    def get_ngram_idf(self, _input: list, n: int) -> list:
+    def get_ngram_idf(self, _input, n: int) -> list:
         """
         padding
         """
