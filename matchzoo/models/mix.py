@@ -100,23 +100,19 @@ class Mix(BaseModel):
             idf_tensor = tf.py_function(self.get_ngram_idf, [input_right, n], tf.dtypes.float32)
             idf_tensor.set_shape(right_ngrams[0].get_shape())
             right_idfs.append(idf_tensor)
-
-        print('6')
-        matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
-        print('92')
         mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
+        print('6')
+        left_ngram_out = [mask_layer([left_ngrams[i], left_idfs[i]]) for i in range(len(left_ngrams))]
+        print('92')
+        right_ngrams_out = [mask_layer([right_ngrams[i], right_idfs[i]]) for i in range(len(right_ngrams))]
         print('94')
+        matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
         [print(x.shape) for x in left_ngrams]
         [print(x.shape) for x in left_idfs]
-        ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
-        print('95')
-        mask_tensors = [matching_layer([m, n]) for m in left_idfs for n in right_idfs]
+        ngram_product = [matching_layer([m, n]) for m in left_ngram_out for n in right_ngrams_out]
         print('96')
-        assert  len(ngram_product) == len(mask_tensors)
         print('ngram_product shape is %s' % ngram_product[0].shape)
-        print('mask_tensors shape is %s' % mask_tensors[0].shape)
-        mask_output = [mask_layer([ngram_product[i],mask_tensors[i]]) for i in range(len(ngram_product))]
-        ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(mask_output)
+        ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
         print('100')
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
