@@ -88,21 +88,22 @@ class Mix(BaseModel):
         print('3')
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
-        # left_idfs = [self.get_ngram_idf(input_left, n) for n in range(1, 3)]
-        # print('4')
-        # right_idfs = [self.get_ngram_idf(input_right, n) for n in range(1, 3)]
-        # print('5')
-        # mask_tensor = self.gen_idf_mask(left_idfs, right_idfs)
+        print('3.5')
+        left_idfs = [self.get_ngram_idf(input_left, n) for n in range(1, 3)]
+        print('4')
+        right_idfs = [self.get_ngram_idf(input_right, n) for n in range(1, 3)]
+        print('5')
+        mask_tensor = self.gen_idf_mask(left_idfs, right_idfs)
         print('6')
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
         print('92')
-        # mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
+        mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
         print('94')
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
         print('96')
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate')(ngram_product)
         print('98')
-        # ngram_output = mask_layer([ngram_output, mask_tensor])
+        ngram_output = mask_layer([ngram_output, mask_tensor])
         print('100')
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
@@ -157,18 +158,20 @@ class Mix(BaseModel):
     def input_to_term(self, _input: list) -> list:
         return [self._params['vocab_unit'].state['index_term'][i] for i in _input]
 
-    # def get_ngram_idf(self, _input, n: int) -> list:
-    #     """
-    #     padding
-    #     """
-    #     assert n > 0
-    #     with K.get_session() as sess:
-    #         input = _input.eval().astype('int')
-    #     padding_input = input + [0] * (n - 1)
-    #     term_list = [self._params['vocab_unit'].state['index_term'][i] for i in padding_input]
-    #     ngram_terms = list(zip(*[term_list[i:] for i in range(n)]))
-    #     ngram_idf = [max(terms, key=lambda x: self._params['idf_table'][x]) for terms in ngram_terms]
-    #     return ngram_idf
+    def get_ngram_idf(self, _input, n: int) -> list:
+        """
+        padding
+        """
+        assert n > 0
+        print(type(_input))
+        print('begin eval')
+        np_input = K.eval(_input)
+        print('end eval')
+        padding_input = np_input + [0] * (n - 1)
+        term_list = [self._params['vocab_unit'].state['index_term'][i] for i in padding_input]
+        ngram_terms = list(zip(*[term_list[i:] for i in range(n)]))
+        ngram_idf = [max(terms, key=lambda x: self._params['idf_table'][x]) for terms in ngram_terms]
+        return ngram_idf
 
     def gen_idf_mask(self, left_idfs, right_idfs):
         masks = [np.dot(np.array(left).T, np.array(right)) for left in left_idfs for right in right_idfs]
