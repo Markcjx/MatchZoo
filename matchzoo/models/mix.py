@@ -112,13 +112,11 @@ class Mix(BaseModel):
         print('95')
         mask_tensors = [matching_layer([m, n]) for m in left_idfs for n in right_idfs]
         print('96')
-        ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
-        mask_output = keras.layers.Concatenate(axis=-1, name='concate2')(mask_tensors)
-        print('98')
-        print('ngram_output shape is %s' % ngram_output.shape)
-        print('mask_output shape is %s' % mask_output.shape)
-    
-        ngram_output = mask_layer([ngram_output, mask_output])
+        assert  len(ngram_product) == len(mask_tensors)
+        print('ngram_product shape is %s' % ngram_product[0].shape)
+        print('mask_tensors shape is %s' % mask_tensors[0].shape)
+        mask_output = [mask_layer([ngram_product[i],mask_tensors[i]]) for i in range(len(ngram_product))]
+        ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(mask_output)
         print('100')
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
