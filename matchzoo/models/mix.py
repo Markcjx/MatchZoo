@@ -11,6 +11,7 @@ from matchzoo.engine import hyper_spaces
 from matchzoo.preprocessors.units import Vocabulary
 import numpy as np
 from keras import backend as K
+from keras.layers import Lambda
 import tensorflow as tf
 
 
@@ -89,21 +90,21 @@ class Mix(BaseModel):
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
         print('3.5')
-        left_idfs = [self.get_ngram_idf(input_left, n) for n in range(1, 3)]
+        left_idfs = [Lambda(self.get_ngram_idf,arguments={'n':n})(input_left) for n in range(1, 3)]
         print('4')
-        right_idfs = [self.get_ngram_idf(input_right, n) for n in range(1, 3)]
-        print('5')
-        mask_tensor = self.gen_idf_mask(left_idfs, right_idfs)
+        right_idfs = [Lambda(self.get_ngram_idf,arguments={'n':n})(input_right) for n in range(1, 3)]
         print('6')
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
         print('92')
         mask_layer = matchzoo.layers.MatchingLayer(matching_type='mul')
         print('94')
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
+        mask_tensors = [matching_layer([m, n]) for m in left_idfs for n in right_idfs]
         print('96')
-        ngram_output = keras.layers.Concatenate(axis=-1, name='concate')(ngram_product)
+        ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
+        mask_output = keras.layers.Concatenate(axis=-1, name='concate2')(mask_tensors)
         print('98')
-        ngram_output = mask_layer([ngram_output, mask_tensor])
+        ngram_output = mask_layer([ngram_output, mask_output])
         print('100')
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
@@ -163,19 +164,8 @@ class Mix(BaseModel):
         padding
         """
         assert n > 0
-        print(type(_input))
-        print('begin eval')
-        np_input = K.eval(_input)
-        print('end eval')
-        padding_input = np_input + [0] * (n - 1)
+        padding_input = _input + [0] * (n - 1)
         term_list = [self._params['vocab_unit'].state['index_term'][i] for i in padding_input]
         ngram_terms = list(zip(*[term_list[i:] for i in range(n)]))
         ngram_idf = [max(terms, key=lambda x: self._params['idf_table'][x]) for terms in ngram_terms]
         return ngram_idf
-
-    def gen_idf_mask(self, left_idfs, right_idfs):
-        masks = [np.dot(np.array(left).T, np.array(right)) for left in left_idfs for right in right_idfs]
-        con_mask = np.concatenate(masks, axis=-1)
-
-        con_mask_tensor = K.constant(con_mask)
-        return con_mask_tensor
