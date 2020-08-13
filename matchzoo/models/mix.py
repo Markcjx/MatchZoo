@@ -116,6 +116,7 @@ class Mix(BaseModel):
         print('96')
         print('ngram_product shape is %s' % ngram_product[0].shape)
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
+        print(ngram_output.shape)
         print('100')
         for i in range(self._params['num_blocks']):
             ngram_output = self._conv_block(
