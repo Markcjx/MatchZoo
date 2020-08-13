@@ -91,9 +91,13 @@ class Mix(BaseModel):
         left_ngrams = [layer(embed_left) for layer in ngram_layers]
         right_ngrams = [layer(embed_right) for layer in ngram_layers]
         print('3.5')
-        left_idfs = [Lambda(self.convert_to_idf_tensor,arguments={'n':n,'shape':left_ngrams[0].get_shape()})(input_left) for n in range(1,4)]
+        left_idfs = [
+            Lambda(self.convert_to_idf_tensor, arguments={'n': n, 'shape': left_ngrams[0].get_shape()})(input_left) for
+            n in range(1, 4)]
         print('4')
-        right_idfs = [Lambda(self.convert_to_idf_tensor,arguments={'n':n,'shape':right_ngrams[0].get_shape()})(input_right) for n in range(1,4)]
+        right_idfs = [
+            Lambda(self.convert_to_idf_tensor, arguments={'n': n, 'shape': right_ngrams[0].get_shape()})(input_right)
+            for n in range(1, 4)]
         for i in [left_ngrams, right_ngrams, left_idfs, right_idfs]:
             for j in i:
                 print(j.shape)
@@ -172,16 +176,20 @@ class Mix(BaseModel):
         """
         padding
         """
+
+        def trans_to_idf(x):
+            return self._params['vocab_unit'].state['index_term'][
+                self._params['vocab_unit'].state['index_term'][int(x)]]
+
+        trans_func = np.frompyfunc(trans_to_idf, 1, 1)
         assert n > 0
         print('into getngram')
         padding_input = _input
         if n > 1:
             pad = np.array([[0] * (n - 1)] * int(_input.shape[0]))
             padding_input = np.concatenate((_input, pad), axis=-1)
-        uniidf = list(map(lambda x: self._params['vocab_unit'].state['index_term'][
-            self._params['vocab_unit'].state['index_term'][int(x)]], padding_input))
+        uniidf = trans_func(padding_input)
         ngramidf = []
-        np.expand_dims
         for i in uniidf:
             ngramidf.append(np.stack([[max(i[x:x + n]) for x in range(len(i) - n + 1)] for _ in range(32)]))
         return np.array(ngramidf)
@@ -191,7 +199,7 @@ class Mix(BaseModel):
         left, right = _input
         return left * right
 
-    def convert_to_idf_tensor(self,_input,n,shape):
+    def convert_to_idf_tensor(self, _input, n, shape):
         idf_tensor = tf.py_function(self.get_ngram_idf, [_input, n], tf.dtypes.float32)
         idf_tensor.set_shape(shape)
         return idf_tensor
