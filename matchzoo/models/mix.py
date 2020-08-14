@@ -106,6 +106,7 @@ class Mix(BaseModel):
         multi_layer = keras.layers.Multiply()
         idf_mask = [dot_layer([left, right]) for left in left_idf_arr for right in right_idf_arr]
         print('9')
+        print(ngram_product[0].shape)
         ngram_product = [multi_layer([idf_mask[i],ngram_product[i]]) for i in range(len(ngram_product))]
         print('96')
         print('ngram_product shape is %s' % ngram_product[0].shape)
