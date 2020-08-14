@@ -174,7 +174,7 @@ class Mix(BaseModel):
                   range(1, n + 1)]
         return layers
 
-    def get_ngram_idf(self, _input, n: int) -> list:
+    def get_ngram_idf(self, x) -> list:
         """
         padding
         """
@@ -187,7 +187,8 @@ class Mix(BaseModel):
             if not idf:
                 idf = self._params['idf_table'].get('<OOV>')
             return float(idf)
-
+        print(x)
+        _input,n = x
         trans_func = np.frompyfunc(trans_to_idf, 1, 1)
         assert n > 0
         print('into getngram')
@@ -196,6 +197,7 @@ class Mix(BaseModel):
             pad = np.array([[0] * (n - 1)] * int(_input.shape[0]))
             padding_input = np.concatenate((_input, pad), axis=-1)
         uniidf = trans_func(padding_input)
+        print('trans_func over')
         ngramidf = []
         for i in uniidf:
             ngramidf.append(np.stack([[max(i[x:x + n]) for x in range(len(i) - n + 1)] for _ in range(32)]))
