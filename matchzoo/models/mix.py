@@ -198,6 +198,6 @@ class Mix(BaseModel):
         idf_tensor = tf.py_function(self.get_ngram_idf, [_input], tf.dtypes.float32)
         idf_tensor.set_shape(_input.get_shape())
         print('idf_tensor shape1 %s ' % idf_tensor.shape)
-        idf_tensor = tf.expand_dims(idf_tensor, 1)
+        idf_tensor = tf.expand_dims(idf_tensor, 2)
         print('idf_tensor shape2 %s ' % idf_tensor.shape)
         return idf_tensor
