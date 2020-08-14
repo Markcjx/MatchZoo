@@ -212,6 +212,8 @@ class Mix(BaseModel):
         return left * right
 
     def convert_to_idf_tensor(self, _input, n, shape):
+        print('input tesor is %s' % _input)
+        print('input shape is %s' % _input.shape)
         idf_tensor = tf.py_function(self.get_ngram_idf, [_input, n], tf.dtypes.float32)
         print('idf_tensor shape1 %s ' % idf_tensor.shape)
         idf_tensor.set_shape(shape)
