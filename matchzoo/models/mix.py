@@ -87,9 +87,9 @@ class Mix(BaseModel):
         # Interaction
         print('2')
         left_ngrams = [layer(embed_left) for layer in
-                       self._ngram_conv_layers(32, 3, 'same', 'relu', name='left_ngram_conv')]
+                       self._ngram_conv_layers(32, 3, 'same', 'relu', name='left')]
         right_ngrams = [layer(embed_right) for layer in
-                        self._ngram_conv_layers(32, 3, 'same', 'relu', name='right_ngram_conv')]
+                        self._ngram_conv_layers(32, 3, 'same', 'relu', name='right')]
         print('3.5')
         left_idfs = [
             Lambda(self.convert_to_idf_tensor, arguments={'n': n, 'shape': left_ngrams[0].get_shape()})(input_left) for
@@ -164,12 +164,13 @@ class Mix(BaseModel):
             n: int,
             padding: str,
             activation: str,
-            **kwargs
+            name: str = '',
     ) -> typing.Any:
         layers = [keras.layers.Conv1D(kernel_count,
                                       kernel_size,
                                       padding=padding,
-                                      activation=activation, **kwargs) for kernel_size in
+                                      activation=activation, name=name + '_ngram_conv_' + str(kernel_size)) for
+                  kernel_size in
                   range(1, n + 1)]
         return layers
 
