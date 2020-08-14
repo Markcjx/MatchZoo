@@ -102,6 +102,9 @@ class Mix(BaseModel):
             for j in i:
                 print(j.shape)
         print('6')
+        for i in [left_ngrams,right_ngrams,left_idfs,right_idfs]
+            for j in i:
+                print(j.shape)
         left_ngram_out = [Lambda(self.mul)([left_ngrams[i], left_idfs[i]]) for i in range(len(left_ngrams))]
         print('92')
         right_ngrams_out = [Lambda(self.mul)([right_ngrams[i], right_idfs[i]]) for i in range(len(right_ngrams))]
