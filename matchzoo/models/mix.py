@@ -169,17 +169,19 @@ class Mix(BaseModel):
                   range(1, n + 1)]
         return layers
 
-    def input_to_term(self, _input: list) -> list:
-        return [self._params['vocab_unit'].state['index_term'][i] for i in _input]
-
     def get_ngram_idf(self, _input, n: int) -> list:
         """
         padding
         """
 
         def trans_to_idf(x):
-            return self._params['vocab_unit'].state['index_term'][
-                self._params['vocab_unit'].state['index_term'][int(x)]]
+            term = self._params['vocab_unit'].state['index_term'].get(int(x))
+            if not term:
+                term = '<OOV>'
+            idf = self._params['idf_table'].get(term)
+            if not idf:
+                idf = self._params['idf_table'].get('<OOV>')
+            return float(idf)
 
         trans_func = np.frompyfunc(trans_to_idf, 1, 1)
         assert n > 0
