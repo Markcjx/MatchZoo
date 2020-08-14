@@ -96,9 +96,6 @@ class Mix(BaseModel):
         left_idf = Lambda(self.convert_to_idf_tensor)(input_left)
         print('4')
         right_idf = Lambda(self.convert_to_idf_tensor)(input_right)
-        print('6')
-        left_idf = keras.layers.Reshape((self._params['input_shapes'][0], 1))(left_idf)
-        right_idf = keras.layers.Reshape((self._params['input_shapes'][1], 1))(right_idf)
         print('7')
         left_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(left_idf) for n in
                         range(1, 4)]
@@ -199,7 +196,8 @@ class Mix(BaseModel):
 
     def convert_to_idf_tensor(self, _input, ):
         idf_tensor = tf.py_function(self.get_ngram_idf, [_input], tf.dtypes.float32)
-        print('idf_tensor shape1 %s ' % idf_tensor.shape)
         idf_tensor.set_shape(_input.get_shape())
+        print('idf_tensor shape1 %s ' % idf_tensor.shape)
+        idf_tensor = tf.expand_dims(idf_tensor, 1)
         print('idf_tensor shape2 %s ' % idf_tensor.shape)
         return idf_tensor
