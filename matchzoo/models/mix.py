@@ -89,7 +89,7 @@ class Mix(BaseModel):
         left_ngrams = [layer(embed_left) for layer in
                        self._ngram_conv_layers(32, 3, 'same', 'relu', name='left_ngram_conv')]
         right_ngrams = [layer(embed_right) for layer in
-                        self._ngram_conv_layers(32, 3, 'same', 'relu', name='right ngram conv')]
+                        self._ngram_conv_layers(32, 3, 'same', 'relu', name='right_ngram_conv')]
         print('3.5')
         left_idfs = [
             Lambda(self.convert_to_idf_tensor, arguments={'n': n, 'shape': left_ngrams[0].get_shape()})(input_left) for
