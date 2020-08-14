@@ -90,29 +90,26 @@ class Mix(BaseModel):
                        self._ngram_conv_layers(32, 3, 'same', 'relu', name='left')]
         right_ngrams = [layer(embed_right) for layer in
                         self._ngram_conv_layers(32, 3, 'same', 'relu', name='right')]
-        print('3.5')
-        left_idfs = [
-            Lambda(self.convert_to_idf_tensor, arguments={'n': n, 'shape': left_ngrams[0].get_shape()})(input_left) for
-            n in range(1, 4)]
-        print('4')
-        right_idfs = [
-            Lambda(self.convert_to_idf_tensor, arguments={'n': n, 'shape': right_ngrams[0].get_shape()})(input_right)
-            for n in range(1, 4)]
-        for i in [left_ngrams, right_ngrams, left_idfs, right_idfs]:
-            for j in i:
-                print(j.shape)
-        print('6')
-        for i in [left_ngrams, right_ngrams, left_idfs, right_idfs]:
-            for j in i:
-                print(j.shape)
-        left_ngram_out = [Lambda(self.mul)([left_ngrams[i], left_idfs[i]]) for i in range(len(left_ngrams))]
-        print('92')
-        right_ngrams_out = [Lambda(self.mul)([right_ngrams[i], right_idfs[i]]) for i in range(len(right_ngrams))]
-        print('94')
-        print(left_ngram_out[0].shape)
-        print(right_ngrams_out[0].shape)
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
-        ngram_product = [matching_layer([m, n]) for m in left_ngram_out for n in right_ngrams_out]
+        ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
+        print('3.5')
+        left_idf = Lambda(self.convert_to_idf_tensor)(input_left)
+        print('4')
+        right_idf = Lambda(self.convert_to_idf_tensor)(input_right)
+        print('6')
+        left_idf = keras.layers.Reshape((self._params['input_shapes'][0], 1))(left_idf)
+        right_idf = keras.layers.Reshape((self._params['input_shapes'][1], 1))(right_idf)
+        print('7')
+        left_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(left_idf) for n in
+                        range(1, 4)]
+        right_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(right_idf) for n in
+                         range(1, 4)]
+        print('8')
+        dot_layer = keras.layers.Dot(2)
+        multi_layer = keras.layers.Multiply()
+        idf_mask = [dot_layer([left, right]) for left in left_idf_arr for right in right_idf_arr]
+        print('9')
+        ngram_product = [multi_layer([idf_mask[i],ngram_product[i]]) for i in range(len(ngram_product))]
         print('96')
         print('ngram_product shape is %s' % ngram_product[0].shape)
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
@@ -174,7 +171,7 @@ class Mix(BaseModel):
                   range(1, n + 1)]
         return layers
 
-    def get_ngram_idf(self, _input, n: int) -> list:
+    def get_ngram_idf(self, _input):
         """
         padding
         """
@@ -189,20 +186,9 @@ class Mix(BaseModel):
             return float(idf)
 
         trans_func = np.frompyfunc(trans_to_idf, 1, 1)
-        assert n > 0
         print('into getngram')
-        padding_input = _input
-        if n > 1:
-            pad = np.array([[0] * (n - 1)] * int(_input.shape[0]))
-            padding_input = np.concatenate((_input, pad), axis=-1)
-        print(padding_input)
-        uniidf = trans_func(padding_input)
-        ngramidf = []
-        print(uniidf)
-        print('uniidf over')
-        for i in uniidf:
-            ngramidf.append(np.stack([[max(i[x:x + n]) for x in range(len(i) - n + 1)] for _ in range(32)]))
-        return np.array(ngramidf)
+        uniidf = trans_func(_input)
+        return np.array(uniidf)
 
     def mul(self, _input):
         assert len(_input) == 2
@@ -211,11 +197,9 @@ class Mix(BaseModel):
         print('right %s' % right.shape)
         return left * right
 
-    def convert_to_idf_tensor(self, _input, n, shape):
-        print('input tesor is %s' % _input)
-        print('input shape is %s' % _input.shape)
-        idf_tensor = tf.py_function(self.get_ngram_idf, [_input, n], tf.dtypes.float32)
+    def convert_to_idf_tensor(self, _input, ):
+        idf_tensor = tf.py_function(self.get_ngram_idf, _input, tf.dtypes.float32)
         print('idf_tensor shape1 %s ' % idf_tensor.shape)
-        idf_tensor.set_shape(shape)
+        idf_tensor.set_shape(_input.get_shape())
         print('idf_tensor shape2 %s ' % idf_tensor.shape)
         return idf_tensor
