@@ -204,6 +204,8 @@ class Mix(BaseModel):
     def mul(self, _input):
         assert len(_input) == 2
         left, right = _input
+        print('left %s' % left.shape)
+        print('right %s' % right.shape)
         return left * right
 
     def convert_to_idf_tensor(self, _input, n, shape):
