@@ -90,25 +90,23 @@ class Mix(BaseModel):
         left_ngrams = [layer(embed_left) for layer in ngram_layer]
         right_ngrams = [layer(embed_right) for layer in ngram_layer]
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
-        reshapelayer = keras.layers.Reshape((10, 40))
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
-        ngram_product = [reshapelayer(product) for product in ngram_product]
-        # print('3.5')
-        # left_idf = Lambda(self.convert_to_idf_tensor)(input_left)
-        #
-        # print('4')
-        # right_idf = Lambda(self.convert_to_idf_tensor)(input_right)
-        # print('7')
-        # left_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(left_idf) for n in
-        #                 range(1, 4)]
-        # right_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(right_idf) for n in
-        #                  range(1, 4)]
-        # print('8')
-        # dot_layer = keras.layers.Dot(2)
-        # multi_layer = keras.layers.Multiply()
-        # idf_masks = [dot_layer([left, right]) for left in left_idf_arr for right in right_idf_arr]
-        # reshape = keras.layers.Reshape(tuple(idf_masks[0].shape.as_list()[1:]) + (1,))
-        # idf_mask_reshape = [reshape(idf_mask) for idf_mask in idf_masks]
+        print('3.5')
+        left_idf = Lambda(self.convert_to_idf_tensor)(input_left)
+
+        print('4')
+        right_idf = Lambda(self.convert_to_idf_tensor)(input_right)
+        print('7')
+        left_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(left_idf) for n in
+                        range(1, 4)]
+        right_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(right_idf) for n in
+                         range(1, 4)]
+        print('8')
+        dot_layer = keras.layers.Dot(2)
+        multi_layer = keras.layers.Multiply()
+        idf_masks = [dot_layer([left, right]) for left in left_idf_arr for right in right_idf_arr]
+        reshape = keras.layers.Reshape(tuple(idf_masks[0].shape.as_list()[1:]) + (1,))
+        idf_masks = [reshape(idf_mask) for idf_mask in idf_masks]
 
         # idf_mask = dot_layer([left_idf, right_idf])
         # reshape = keras.layers.Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
@@ -118,7 +116,7 @@ class Mix(BaseModel):
         # for i in [ngram_product]:
         #     for j in i:
         #         print(j.shape)
-        # ngram_product = [multi_layer([idf_masks[i], ngram_product[i]]) for i in range(len(ngram_product))]
+        ngram_product = [multi_layer([idf_masks[i], ngram_product[i]]) for i in range(len(ngram_product))]
         print('96')
         print('ngram_product shape is %s' % ngram_product[0].shape)
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
