@@ -187,9 +187,10 @@ class Mix(BaseModel):
             term = self._params['vocab_unit'].state['index_term'].get(int(x))
             if not term:
                 term = '<OOV>'
-            idf = self._params['idf_table'].get(term)
-            if not idf:
-                idf = self._params['idf_table'].get('<OOV>')
+            try:
+                idf = self._params['idf_table'][term]
+            except:
+                idf = 0.5
             return float(idf)
 
         trans_func = np.frompyfunc(trans_to_idf, 1, 1)
