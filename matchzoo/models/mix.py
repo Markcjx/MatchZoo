@@ -113,7 +113,8 @@ class Mix(BaseModel):
         reshape = keras.layers.Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
         idf_mask = reshape(idf_mask)
         print('9')
-        for i in [idf_mask, ngram_product]:
+        print(idf_mask.shape)
+        for i in [ngram_product]:
             for j in i:
                 print(j.shape)
         ngram_product = [multi_layer([idf_mask, ngram_product[i]]) for i in range(len(ngram_product))]
