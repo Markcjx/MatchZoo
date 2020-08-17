@@ -90,8 +90,9 @@ class Mix(BaseModel):
         left_ngrams = [layer(embed_left) for layer in ngram_layer]
         right_ngrams = [layer(embed_right) for layer in ngram_layer]
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
+        reshapelayer = keras.layers.Reshape((10, 40))
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
-        ngram_product = keras.layers.Reshape((10,40))(ngram_product)
+        ngram_product = [reshapelayer(product) for product in ngram_product]
         # print('3.5')
         # left_idf = Lambda(self.convert_to_idf_tensor)(input_left)
         #
