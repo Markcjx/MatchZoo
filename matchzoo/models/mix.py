@@ -86,10 +86,9 @@ class Mix(BaseModel):
         embed_right = embedding(input_right)
         # Interaction
         print('2')
-        left_ngrams = [layer(embed_left) for layer in
-                       self._ngram_conv_layers(32, 3, 'same', 'relu', name='left')]
-        right_ngrams = [layer(embed_right) for layer in
-                        self._ngram_conv_layers(32, 3, 'same', 'relu', name='right')]
+        ngram_layer = self._ngram_conv_layers(32, 3, 'same', 'relu',name = 'common')
+        left_ngrams = [layer(embed_left) for layer in ngram_layer]
+        right_ngrams = [layer(embed_right) for layer in ngram_layer]
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
         # print('3.5')
