@@ -20,6 +20,7 @@ from .bert_clean import StripAccent
 from .tokenize import ChineseTokenize
 from .tokenize import BasicTokenize
 from .tokenize import WordPieceTokenize
+from .tokenize import HanLPTokenize
 from .vocabulary import BertVocabulary
 
 

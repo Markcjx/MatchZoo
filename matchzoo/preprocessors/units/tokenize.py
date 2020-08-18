@@ -1,7 +1,8 @@
 import nltk
 from matchzoo.utils.bert_utils import is_chinese_char, \
     whitespace_tokenize, run_split_on_punc
-
+import re
+from pyhanlp import *
 from .unit import Unit
 
 
@@ -42,7 +43,22 @@ class ChineseTokenize(Unit):
                 output.append(char)
         return "".join(output)
 
+class HanLPTokenize(Unit):
+    def __init__(self):
+        self.tokenizer = JClass("com.hankcs.hanlp.tokenizer.NLPTokenizer")
 
+    def transform(self, input_: str) -> str:
+        """
+          :param input_: raw textual input.
+
+        :return output: text with at least one blank between adjacent
+                        Chinese tokens.
+        """
+        text = re.sub(r'\s+', ' ', input_)
+        words = self.tokenizer.segment(text)
+        token_words = [word.word.replace('\\', '').strip() for word in words]
+        return token_words
+    
 class BasicTokenize(Unit):
     """Process unit for text tokenization."""
 

@@ -5,7 +5,7 @@ from .basic_preprocessor import BasicPreprocessor
 from .cdssm_preprocessor import CDSSMPreprocessor
 from .diin_preprocessor import DIINPreprocessor
 from .bert_preprocessor import BertPreprocessor
-
+from .chinese_basic_preprocessor import ChineseBasicPreprocessor
 
 def list_available() -> list:
     from matchzoo.engine.base_preprocessor import BasePreprocessor
