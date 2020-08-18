@@ -7,7 +7,7 @@ class ChinesePuncRemoval(Unit):
     """Process unit for remove punctuations."""
     def __init__(self,split:bool = True):
         self.split = split
-        self.punctuation = string.punctuation + '，。、【 】 “”：；（）《》‘’{}？！⑦()、%^>℃：.”“^-——=&#@￥『』丨'
+        self.punctuation = string.punctuation + '，。、【 】 “”：；（）《》‘’{}？！⑦()、%^>℃：.”“^-——=&#@￥『』丨「」–〔〕'
 
     def transform(self, input_: list) -> list:
         """

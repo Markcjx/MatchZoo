@@ -44,9 +44,6 @@ class ChineseTokenize(Unit):
         return "".join(output)
 
 class HanLPTokenize(Unit):
-    def __init__(self):
-        self.tokenizer = JClass("com.hankcs.hanlp.tokenizer.NLPTokenizer")
-
     def transform(self, input_: str) -> str:
         """
           :param input_: raw textual input.
@@ -55,7 +52,7 @@ class HanLPTokenize(Unit):
                         Chinese tokens.
         """
         text = re.sub(r'\s+', ' ', input_)
-        words = self.tokenizer.segment(text)
+        words = HanLP.segment(text)
         token_words = [word.word.replace('\\', '').strip() for word in words]
         return token_words
     
