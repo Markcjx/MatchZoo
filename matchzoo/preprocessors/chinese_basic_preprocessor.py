@@ -153,7 +153,7 @@ class ChineseBasicPreprocessor(BasePreprocessor):
         """Prepare needed process units."""
         return [
             units.ChinesePuncRemoval(False),
-            units.HanLPTokenize(),
+            units.ChineseTokenize(),
             units.Lowercase(),
         ]
 
