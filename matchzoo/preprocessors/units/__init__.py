@@ -7,6 +7,7 @@ from .lowercase import Lowercase
 from .matching_histogram import MatchingHistogram
 from .ngram_letter import NgramLetter
 from .punc_removal import PuncRemoval
+from .chinese_punc_removal import ChinesePuncRemoval
 from .stateful_unit import StatefulUnit
 from .stemming import Stemming
 from .stop_removal import StopRemoval

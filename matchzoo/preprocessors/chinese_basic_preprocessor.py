@@ -152,9 +152,9 @@ class ChineseBasicPreprocessor(BasePreprocessor):
     def _custom_units(cls) -> list:
         """Prepare needed process units."""
         return [
-            units.ChineseTokenize(),
+            units.ChinesePuncRemoval(False),
+            units.HanLPTokenize(),
             units.Lowercase(),
-            units.PuncRemoval()
         ]
 
     def save(self, dirpath: typing.Union[str, Path]):
