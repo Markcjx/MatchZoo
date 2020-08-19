@@ -70,11 +70,13 @@ class ChineseBasicPreprocessor(BasePreprocessor):
         self._fixed_length_right = fixed_length_right
         self._left_fixedlength_unit = units.HanLP_Fix_length(
             self._fixed_length_left,
+            pad_value='<PAD>',
             pad_mode='post',
             truncate_mode='post'
         )
         self._right_fixedlength_unit = units.HanLP_Fix_length(
             self._fixed_length_right,
+            pad_value='<PAD>',
             pad_mode='post',
             truncate_mode='post'
         )
@@ -164,7 +166,7 @@ class ChineseBasicPreprocessor(BasePreprocessor):
 
     def get_part_of_speech(self, _input: list) -> list:
         """just for HanLP segment"""
-        return [term.nature.toString() for term in _input]
+        return [term if type(term) == str else term.nature.toString() for term in _input]
 
 
     def save(self, dirpath: typing.Union[str, Path]):
