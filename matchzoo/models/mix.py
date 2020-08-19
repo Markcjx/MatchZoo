@@ -64,6 +64,9 @@ class Mix(BaseModel):
         params.add(Param(
             name='idf_table', value={}, desc='get terms idf'
         ))
+        params.add(Param(
+            name='pos', value={}, desc='get terms pos score'
+        ))
         return params
 
     def build(self):
@@ -97,6 +100,9 @@ class Mix(BaseModel):
         print('4')
         right_idf = Lambda(self.convert_to_idf_tensor)(input_right)
         print('7')
+        left_pos = Lambda(self.convert_to_pos_tensor)(input_left)
+        right_pos = Lambda(self.convert_to_pos_tensor)(input_right)
+        print('8')
         # left_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(left_idf) for n in
         #                 range(1, 4)]
         # right_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(right_idf) for n in
@@ -109,14 +115,18 @@ class Mix(BaseModel):
         # idf_masks = [reshape(idf_mask) for idf_mask in idf_masks]
 
         idf_mask = dot_layer([left_idf, right_idf])
+        pos_mask = dot_layer([left_pos,right_pos])
         reshape = keras.layers.Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
         idf_mask = reshape(idf_mask)
+        pos_mask = reshape(pos_mask)
         print('9')
         #
         # for i in [ngram_product]:
         #     for j in i:
         #         print(j.shape)
         ngram_product = [multi_layer([idf_mask, ngram_product[i]]) for i in range(len(ngram_product))]
+        pos_product = [multi_layer([pos_mask, ngram_product[i]]) for i in range(len(ngram_product))]
+        ngram_product.extend(pos_product)
         print('96')
         print('ngram_product shape is %s' % ngram_product[0].shape)
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
@@ -179,10 +189,6 @@ class Mix(BaseModel):
         return layers
 
     def get_ngram_idf(self, _input):
-        """
-        padding
-        """
-
         def trans_to_idf(x):
             term = self._params['vocab_unit'].state['index_term'].get(int(x))
             if not term:
@@ -196,6 +202,14 @@ class Mix(BaseModel):
         trans_func = np.frompyfunc(trans_to_idf, 1, 1)
         uniidf = trans_func(_input)
         return np.array(uniidf)
+
+    def get_pos_score(self,_input):
+        def trans_to_pos_score(x):
+            pos_score = self._params['pos'][x]
+            return pos_score
+        trans_func = np.frompyfunc(trans_to_pos_score, 1, 1)
+        pos_array = trans_func(_input)
+        return pos_array
 
     def mul(self, _input):
         assert len(_input) == 2
@@ -211,3 +225,9 @@ class Mix(BaseModel):
         idf_tensor = tf.expand_dims(idf_tensor, 2)
         print('idf_tensor shape2 %s ' % idf_tensor.shape)
         return idf_tensor
+
+    def convert_to_pos_tensor(self,_input):
+        pos_tensor = tf.py_function(self.get_pos_score,[_input],tf.dtypes.float32)
+        pos_tensor.set_shape(_input.get_shape())
+        pos_tensor = tf.expand_dims(pos_tensor, 2)
+        return pos_tensor
