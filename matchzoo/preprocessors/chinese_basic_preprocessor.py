@@ -139,7 +139,7 @@ class ChineseBasicPreprocessor(BasePreprocessor):
                                 mode='left', inplace=True, verbose=verbose)
         data_pack.apply_on_text(self._right_fixedlength_unit.transform,
                                 mode='right', inplace=True, verbose=verbose)
-        data_pack.apply_on_text(self.get_part_of_speech, mode='both', rename=('pos_left', 'pos_right'))
+        data_pack.apply_on_text(self.get_part_of_speech, inplace=True,mode='both', rename=('pos_left', 'pos_right'))
         data_pack.apply_on_text(self._context['vocab_unit'].transform,
                                 mode='both', inplace=True, verbose=verbose)
 
