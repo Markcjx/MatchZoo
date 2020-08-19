@@ -51,8 +51,7 @@ class HanLPTokenize(Unit):
         :return output: text with at least one blank between adjacent
                         Chinese tokens.
         """
-        text = re.sub(r'\s+', ' ', input_)
-        words = HanLP.segment(text)
+        words = HanLP.segment(input_)
         token_words = [word.word.replace('\\', '').strip() for word in words]
         return token_words
     
