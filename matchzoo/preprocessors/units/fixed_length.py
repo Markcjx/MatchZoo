@@ -116,9 +116,6 @@ class HanLP_Fix_length(Unit):
         # padding process can not handle empty list as input
         if len(input_) == 0:
             input_ = [self._pad_value]
-        np_tokens = np.array(input_)
-        fixed_tokens = np.full([self._text_length], self._pad_value,
-                               dtype=np_tokens.dtype)
 
         if self._truncate_mode == 'pre':
             trunc_tokens = input_[-self._text_length:]
@@ -129,11 +126,11 @@ class HanLP_Fix_length(Unit):
                              'truncate mode.'.format(self._truncate_mode))
 
         if self._pad_mode == 'post':
-            fixed_tokens[:len(trunc_tokens)] = trunc_tokens
+            trunc_tokens = trunc_tokens + [self._pad_value] * (self._text_length - len(trunc_tokens))
         elif self._pad_mode == 'pre':
-            fixed_tokens[-len(trunc_tokens):] = trunc_tokens
+            trunc_tokens = [self._pad_value] * (self._text_length - len(trunc_tokens)) + trunc_tokens
         else:
             raise ValueError('{} is not a vaild '
                              'pad mode.'.format(self._pad_mode))
 
-        return fixed_tokens.tolist()
+        return trunc_tokens.tolist()
