@@ -52,8 +52,7 @@ class HanLPTokenize(Unit):
                         Chinese tokens.
         """
         words = HanLP.segment(input_)
-        token_words = [word.word.replace('\\', '').strip() for word in words]
-        return token_words
+        return words
     
 class BasicTokenize(Unit):
     """Process unit for text tokenization."""

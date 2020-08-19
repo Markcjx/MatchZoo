@@ -156,9 +156,8 @@ class ChineseBasicPreprocessor(BasePreprocessor):
         """Prepare needed process units."""
         return [
             units.ChinesePuncRemoval(),
-            units.HanLPTokenize(),
-            units.Lowercase()
-
+            units.Lowercase(False),
+            units.HanLPTokenize()
         ]
 
     def get_part_of_speech(self, _input: list) -> list:
