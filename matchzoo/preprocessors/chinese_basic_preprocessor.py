@@ -5,11 +5,12 @@ from pathlib import Path
 from . import units
 from matchzoo import DataPack
 from matchzoo.engine.base_preprocessor import BasePreprocessor
-from .build_vocab_unit import build_vocab_unit
+from .build_vocab_unit import build_mix_vocab_unit
 from .build_unit_from_data_pack import build_unit_from_data_pack
 from .chain_transform import chain_transform
 import typing
 import dill
+
 tqdm.pandas()
 
 
@@ -94,16 +95,16 @@ class ChineseBasicPreprocessor(BasePreprocessor):
         """
         data_pack = data_pack.apply_on_text(chain_transform(self._units),
                                             verbose=verbose)
-        fitted_filter_unit = build_unit_from_data_pack(self._filter_unit,
-                                                       data_pack,
-                                                       flatten=False,
-                                                       mode='right',
-                                                       verbose=verbose)
-        data_pack = data_pack.apply_on_text(fitted_filter_unit.transform,
-                                            mode='right', verbose=verbose)
-        self._context['filter_unit'] = fitted_filter_unit
+        # fitted_filter_unit = build_unit_from_data_pack(self._filter_unit,
+        #                                                data_pack,
+        #                                                flatten=False,
+        #                                                mode='right',
+        #                                                verbose=verbose)
+        # data_pack = data_pack.apply_on_text(fitted_filter_unit.transform,
+        #                                     mode='right', verbose=verbose)
+        # self._context['filter_unit'] = fitted_filter_unit
 
-        vocab_unit = build_vocab_unit(data_pack, verbose=verbose)
+        vocab_unit = build_mix_vocab_unit(data_pack, verbose=verbose)
         self._context['vocab_unit'] = vocab_unit
 
         vocab_size = len(vocab_unit.state['term_index'])
@@ -127,15 +128,16 @@ class ChineseBasicPreprocessor(BasePreprocessor):
         data_pack.apply_on_text(chain_transform(self._units), inplace=True,
                                 verbose=verbose)
 
-        data_pack.apply_on_text(self._context['filter_unit'].transform,
-                                mode='right', inplace=True, verbose=verbose)
-        data_pack.apply_on_text(self._context['vocab_unit'].transform,
-                                mode='both', inplace=True, verbose=verbose)
+        # data_pack.apply_on_text(self._context['filter_unit'].transform,
+        #                         mode='right', inplace=True, verbose=verbose)
         data_pack.append_text_length(inplace=True, verbose=verbose)
         data_pack.apply_on_text(self._left_fixedlength_unit.transform,
                                 mode='left', inplace=True, verbose=verbose)
         data_pack.apply_on_text(self._right_fixedlength_unit.transform,
                                 mode='right', inplace=True, verbose=verbose)
+        data_pack.apply_on_text(self.get_part_of_speech, mode='both', rename=('pos_left', 'pos_right'))
+        data_pack.apply_on_text(self._context['vocab_unit'].transform,
+                                mode='both', inplace=True, verbose=verbose)
 
         max_len_left = self._fixed_length_left
         max_len_right = self._fixed_length_right
@@ -148,14 +150,21 @@ class ChineseBasicPreprocessor(BasePreprocessor):
             data_pack.right['length_right'].apply(
                 lambda val: min(val, max_len_right))
         return data_pack
+
     @classmethod
     def _custom_units(cls) -> list:
         """Prepare needed process units."""
         return [
-            units.ChinesePuncRemoval(False),
+            units.ChinesePuncRemoval(),
             units.HanLPTokenize(),
-            units.Lowercase(),
+            units.Lowercase()
+
         ]
+
+    def get_part_of_speech(self, _input: list) -> list:
+        """just for HanLP segment"""
+        return [term.nature.toString() for term in _input]
+
 
     def save(self, dirpath: typing.Union[str, Path]):
         """
@@ -179,7 +188,7 @@ class ChineseBasicPreprocessor(BasePreprocessor):
         dill.dump(self, open(data_file_path, mode='wb'))
 
     @classmethod
-    def load_preprocessor(cls,dirpath: typing.Union[str, Path]) -> 'mz.DataPack':
+    def load_preprocessor(cls, dirpath: typing.Union[str, Path]) -> 'mz.DataPack':
         """
         Load the fitted `context`. The reverse function of :meth:`save`.
 

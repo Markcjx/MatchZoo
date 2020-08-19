@@ -1,5 +1,6 @@
 from matchzoo.data_pack import DataPack
 from .units import Vocabulary
+from .units import MixVocabulary
 from .build_unit_from_data_pack import build_unit_from_data_pack
 from .units import BertVocabulary
 
@@ -42,3 +43,16 @@ def built_bert_vocab_unit(vocab_path: str) -> BertVocabulary:
     vocab_unit = BertVocabulary(pad_value='[PAD]', oov_value='[UNK]')
     vocab_unit.fit(vocab_path)
     return vocab_unit
+
+
+def build_mix_vocab_unit(
+        data_pack: DataPack,
+        mode: str = 'both',
+        verbose: int = 1
+) -> Vocabulary:
+    return build_unit_from_data_pack(
+        unit=MixVocabulary(),
+        data_pack=data_pack,
+        mode=mode,
+        flatten=True, verbose=verbose
+    )
