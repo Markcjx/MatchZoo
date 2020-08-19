@@ -1,6 +1,7 @@
 from .unit import Unit
 from .digit_removal import DigitRemoval
 from .fixed_length import FixedLength
+from .fixed_length import HanLP_Fix_length
 from .frequency_filter import FrequencyFilter
 from .lemmatization import Lemmatization
 from .lowercase import Lowercase

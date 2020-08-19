@@ -68,12 +68,12 @@ class ChineseBasicPreprocessor(BasePreprocessor):
         super().__init__()
         self._fixed_length_left = fixed_length_left
         self._fixed_length_right = fixed_length_right
-        self._left_fixedlength_unit = units.FixedLength(
+        self._left_fixedlength_unit = units.HanLP_Fix_length(
             self._fixed_length_left,
             pad_mode='post',
             truncate_mode='post'
         )
-        self._right_fixedlength_unit = units.FixedLength(
+        self._right_fixedlength_unit = units.HanLP_Fix_length(
             self._fixed_length_right,
             pad_mode='post',
             truncate_mode='post'
