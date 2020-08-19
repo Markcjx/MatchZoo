@@ -44,7 +44,7 @@ class ChineseTokenize(Unit):
         return "".join(output)
 
 class HanLPTokenize(Unit):
-    def transform(self, input_: str) -> str:
+    def transform(self, input_: str) -> list:
         """
           :param input_: raw textual input.
 
