@@ -133,4 +133,4 @@ class HanLP_Fix_length(Unit):
             raise ValueError('{} is not a vaild '
                              'pad mode.'.format(self._pad_mode))
 
-        return trunc_tokens.tolist()
+        return trunc_tokens
