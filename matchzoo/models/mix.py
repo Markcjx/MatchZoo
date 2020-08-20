@@ -13,6 +13,7 @@ import numpy as np
 from keras import backend as K
 from keras.layers import Lambda
 from keras.layers import Input
+from keras.layers import Reshape
 import tensorflow as tf
 import pdb
 
@@ -79,7 +80,8 @@ class Mix(BaseModel):
             shape=self._params['input_shapes'][0])
         pos_right = Input(name='pos_right',
                          shape=self._params['input_shapes'][1])
-
+        pos_left = Reshape(tuple(pos_left.shape.as_list()[1:] + (1,)))(pos_left)
+        pos_right = Reshape(tuple(pos_right.shape.as_list()[1:] + (1,)))(pos_right)
         print(pos_left.shape)
         print(pos_right.shape)
         # input_dpool_index = keras.layers.Input(
@@ -111,7 +113,7 @@ class Mix(BaseModel):
         # right_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(right_idf) for n in
         #                  range(1, 4)]
         # print('8')
-        dot_layer = keras.layers.Dot(-1)
+        dot_layer = keras.layers.Dot(2)
         multi_layer = keras.layers.Multiply()
         # idf_masks = [dot_layer([left, right]) for left in left_idf_arr for right in right_idf_arr]
         # reshape = keras.layers.Reshape(tuple(idf_masks[0].shape.as_list()[1:]) + (1,))
@@ -121,7 +123,7 @@ class Mix(BaseModel):
         pos_mask = dot_layer([pos_left, pos_right])
         print(idf_mask.shape)
         print(pos_mask.shape)
-        reshape = keras.layers.Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
+        reshape = Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
         idf_mask = reshape(idf_mask)
         pos_mask = reshape(pos_mask)
         print('9')
