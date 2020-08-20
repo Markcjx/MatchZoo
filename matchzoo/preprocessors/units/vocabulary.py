@@ -1,5 +1,5 @@
 from .stateful_unit import StatefulUnit
-from matchzoo.datasets.pos_score import POS_SCORE
+import matchzoo as mz
 
 class Vocabulary(StatefulUnit):
     """
@@ -169,7 +169,7 @@ class MixVocabulary(StatefulUnit):
             return 0.5
 
     def load_pos(self):
-        with open(str(POS_SCORE),mode='r',encoding='utf-8') as input_file:
+        with open(str(mz.datasets.pos_score.POS_SCORE),mode='r',encoding='utf-8') as input_file:
             for line in input_file.readlines():
                 pos,score = line.strip().split()
                 self._context['pos_score'][pos] = score
