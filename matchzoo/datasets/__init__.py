@@ -1,6 +1,7 @@
 from . import toy
 from . import wiki_qa
 from . import embeddings
+from . import pos_score
 from . import snli
 from . import quora_qp
 from . import cqa_ql_16
