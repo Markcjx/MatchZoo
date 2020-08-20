@@ -80,10 +80,10 @@ class Mix(BaseModel):
                          shape=self._params['input_shapes'][0])
         pos_right_input = Input(name='pos_right',
                           shape=self._params['input_shapes'][1])
-        pos_left = Reshape(tuple(pos_left_input.shape.as_list()[1:]) + (1,))(pos_left_input)
-        pos_right = Reshape(tuple(pos_right_input.shape.as_list()[1:]) + (1,))(pos_right_input)
-        print(pos_left.shape)
-        print(pos_right.shape)
+        # pos_left = Reshape(tuple(pos_left_input.shape.as_list()[1:]) + (1,))(pos_left_input)
+        # pos_right = Reshape(tuple(pos_right_input.shape.as_list()[1:]) + (1,))(pos_right_input)
+        # print(pos_left.shape)
+        # print(pos_right.shape)
         # input_dpool_index = keras.layers.Input(
         #     name='dpool_index',
         #     shape=[self._params['input_shapes'][0][0],
@@ -120,12 +120,12 @@ class Mix(BaseModel):
         # idf_masks = [reshape(idf_mask) for idf_mask in idf_masks]
 
         idf_mask = dot_layer([left_idf, right_idf])
-        pos_mask = dot_layer([pos_left, pos_right])
+        # pos_mask = dot_layer([pos_left, pos_right])
         print(idf_mask.shape)
-        print(pos_mask.shape)
+        # print(pos_mask.shape)
         reshape = Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
         idf_mask = reshape(idf_mask)
-        pos_mask = reshape(pos_mask)
+        # pos_mask = reshape(pos_mask)
         print('9')
         #
         # for i in [ngram_product]:
@@ -133,9 +133,9 @@ class Mix(BaseModel):
         #         print(j.shape)
         products = []
         idf_product = [multi_layer([idf_mask, ngram_product[i]]) for i in range(len(ngram_product))]
-        pos_product = [multi_layer([pos_mask, ngram_product[i]]) for i in range(len(ngram_product))]
+        # pos_product = [multi_layer([pos_mask, ngram_product[i]]) for i in range(len(ngram_product))]
         products.extend(idf_product)
-        products.extend(pos_product)
+        # products.extend(pos_product)
         print('96')
         print('ngram_product shape is %s' % ngram_product[0].shape)
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(products)
