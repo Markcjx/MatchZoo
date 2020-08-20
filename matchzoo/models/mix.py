@@ -12,6 +12,7 @@ from matchzoo.preprocessors.units import Vocabulary
 import numpy as np
 from keras import backend as K
 from keras.layers import Lambda
+from keras.layers import Input
 import tensorflow as tf
 import pdb
 
@@ -64,9 +65,6 @@ class Mix(BaseModel):
         params.add(Param(
             name='idf_table', value={}, desc='get terms idf'
         ))
-        params.add(Param(
-            name='pos', value={}, desc='get terms pos score'
-        ))
         return params
 
     def build(self):
@@ -77,6 +75,10 @@ class Mix(BaseModel):
         """
         print('1')
         input_left, input_right = self._make_inputs()
+        pos_left = Input(  name='pos_left',
+            shape=self._params['input_shapes'][0])
+        pos_right = Input(name='pos_right',
+                         shape=self._params['input_shapes'][1])
         # input_dpool_index = keras.layers.Input(
         #     name='dpool_index',
         #     shape=[self._params['input_shapes'][0][0],
@@ -99,9 +101,6 @@ class Mix(BaseModel):
 
         print('4')
         right_idf = Lambda(self.convert_to_idf_tensor)(input_right)
-        print('7')
-        left_pos = Lambda(self.convert_to_pos_tensor)(input_left)
-        right_pos = Lambda(self.convert_to_pos_tensor)(input_right)
         print('8')
         # left_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(left_idf) for n in
         #                 range(1, 4)]
@@ -115,7 +114,7 @@ class Mix(BaseModel):
         # idf_masks = [reshape(idf_mask) for idf_mask in idf_masks]
 
         idf_mask = dot_layer([left_idf, right_idf])
-        pos_mask = dot_layer([left_pos,right_pos])
+        pos_mask = dot_layer([pos_left,pos_right])
         reshape = keras.layers.Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
         idf_mask = reshape(idf_mask)
         pos_mask = reshape(pos_mask)
