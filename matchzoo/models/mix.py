@@ -76,10 +76,10 @@ class Mix(BaseModel):
         """
         print('1')
         input_left, input_right = self._make_inputs()
-        pos_left_input = Input(name='pos_left',
-                         shape=self._params['input_shapes'][0])
-        pos_right_input = Input(name='pos_right',
-                          shape=self._params['input_shapes'][1])
+        # pos_left_input = Input(name='pos_left',
+        #                  shape=self._params['input_shapes'][0])
+        # pos_right_input = Input(name='pos_right',
+        #                   shape=self._params['input_shapes'][1])
         # pos_left = Reshape(tuple(pos_left_input.shape.as_list()[1:]) + (1,))(pos_left_input)
         # pos_right = Reshape(tuple(pos_right_input.shape.as_list()[1:]) + (1,))(pos_right_input)
         # print(pos_left.shape)
