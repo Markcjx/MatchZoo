@@ -80,8 +80,8 @@ class Mix(BaseModel):
             shape=self._params['input_shapes'][0])
         pos_right = Input(name='pos_right',
                          shape=self._params['input_shapes'][1])
-        pos_left = Reshape(tuple(pos_left.shape.as_list()[1:] + (1,)))(pos_left)
-        pos_right = Reshape(tuple(pos_right.shape.as_list()[1:] + (1,)))(pos_right)
+        pos_left = Reshape(tuple(pos_left.shape.as_list()[1:]) + (1,))(pos_left)
+        pos_right = Reshape(tuple(pos_right.shape.as_list()[1:]) + (1,))(pos_right)
         print(pos_left.shape)
         print(pos_right.shape)
         # input_dpool_index = keras.layers.Input(
