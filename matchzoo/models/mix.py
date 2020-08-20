@@ -76,12 +76,12 @@ class Mix(BaseModel):
         """
         print('1')
         input_left, input_right = self._make_inputs()
-        pos_left = Input(name='pos_left',
+        pos_left_input = Input(name='pos_left',
                          shape=self._params['input_shapes'][0])
-        pos_right = Input(name='pos_right',
+        pos_right_input = Input(name='pos_right',
                           shape=self._params['input_shapes'][1])
-        pos_left = Reshape(tuple(pos_left.shape.as_list()[1:]) + (1,))(pos_left)
-        pos_right = Reshape(tuple(pos_right.shape.as_list()[1:]) + (1,))(pos_right)
+        pos_left = Reshape(tuple(pos_left_input.shape.as_list()[1:]) + (1,))(pos_left_input)
+        pos_right = Reshape(tuple(pos_right_input.shape.as_list()[1:]) + (1,))(pos_right_input)
         print(pos_left.shape)
         print(pos_right.shape)
         # input_dpool_index = keras.layers.Input(
@@ -159,7 +159,7 @@ class Mix(BaseModel):
         print('131')
         x = keras.layers.Dropout(rate=self._params['dropout_rate'])(embed_flat)
         print('132')
-        inputs = [input_left, input_right,pos_left,pos_right]
+        inputs = [input_left, input_right,pos_left_input,pos_right_input]
         print('133')
         x_out = self._make_output_layer()(x)
         self._backend = keras.Model(inputs=inputs, outputs=x_out)
