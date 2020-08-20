@@ -101,23 +101,26 @@ class Mix(BaseModel):
         ngram_product = [matching_layer([m, n]) for m in left_ngrams for n in right_ngrams]
         print('3.5')
         left_idf = Lambda(self.convert_to_idf_tensor)(input_left)
-
+        print(left_idf.shape)
         print('4')
         right_idf = Lambda(self.convert_to_idf_tensor)(input_right)
+        print(left_idf.shape)
         print('8')
         # left_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(left_idf) for n in
         #                 range(1, 4)]
         # right_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(right_idf) for n in
         #                  range(1, 4)]
         # print('8')
-        dot_layer = keras.layers.Dot(2)
+        dot_layer = keras.layers.Dot(-1)
         multi_layer = keras.layers.Multiply()
         # idf_masks = [dot_layer([left, right]) for left in left_idf_arr for right in right_idf_arr]
         # reshape = keras.layers.Reshape(tuple(idf_masks[0].shape.as_list()[1:]) + (1,))
         # idf_masks = [reshape(idf_mask) for idf_mask in idf_masks]
 
         idf_mask = dot_layer([left_idf, right_idf])
-        pos_mask = dot_layer([pos_left,pos_right])
+        pos_mask = dot_layer([pos_left, pos_right])
+        print(idf_mask.shape)
+        print(pos_mask.shape)
         reshape = keras.layers.Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
         idf_mask = reshape(idf_mask)
         pos_mask = reshape(pos_mask)
