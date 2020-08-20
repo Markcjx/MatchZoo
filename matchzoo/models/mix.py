@@ -76,10 +76,10 @@ class Mix(BaseModel):
         """
         print('1')
         input_left, input_right = self._make_inputs()
-        pos_left = Input(  name='pos_left',
-            shape=self._params['input_shapes'][0])
+        pos_left = Input(name='pos_left',
+                         shape=self._params['input_shapes'][0])
         pos_right = Input(name='pos_right',
-                         shape=self._params['input_shapes'][1])
+                          shape=self._params['input_shapes'][1])
         pos_left = Reshape(tuple(pos_left.shape.as_list()[1:]) + (1,))(pos_left)
         pos_right = Reshape(tuple(pos_right.shape.as_list()[1:]) + (1,))(pos_right)
         print(pos_left.shape)
@@ -96,7 +96,7 @@ class Mix(BaseModel):
         embed_right = embedding(input_right)
         # Interaction
         print('2')
-        ngram_layer = self._ngram_conv_layers(32, 3, 'same', 'relu',name = 'common')
+        ngram_layer = self._ngram_conv_layers(32, 3, 'same', 'relu', name='common')
         left_ngrams = [layer(embed_left) for layer in ngram_layer]
         right_ngrams = [layer(embed_right) for layer in ngram_layer]
         matching_layer = matchzoo.layers.MatchingLayer(matching_type='dot')
@@ -159,7 +159,7 @@ class Mix(BaseModel):
         print('131')
         x = keras.layers.Dropout(rate=self._params['dropout_rate'])(embed_flat)
         print('132')
-        inputs = [input_left, input_right]
+        inputs = [input_left, input_right,pos_left,pos_right]
         print('133')
         x_out = self._make_output_layer()(x)
         self._backend = keras.Model(inputs=inputs, outputs=x_out)
@@ -210,10 +210,11 @@ class Mix(BaseModel):
         uniidf = trans_func(_input)
         return np.array(uniidf)
 
-    def get_pos_score(self,_input):
+    def get_pos_score(self, _input):
         def trans_to_pos_score(x):
             pos_score = self._params['pos'][x]
             return pos_score
+
         trans_func = np.frompyfunc(trans_to_pos_score, 1, 1)
         pos_array = trans_func(_input)
         return pos_array
@@ -233,8 +234,8 @@ class Mix(BaseModel):
         print('idf_tensor shape2 %s ' % idf_tensor.shape)
         return idf_tensor
 
-    def convert_to_pos_tensor(self,_input):
-        pos_tensor = tf.py_function(self.get_pos_score,[_input],tf.dtypes.float32)
+    def convert_to_pos_tensor(self, _input):
+        pos_tensor = tf.py_function(self.get_pos_score, [_input], tf.dtypes.float32)
         pos_tensor.set_shape(_input.get_shape())
         pos_tensor = tf.expand_dims(pos_tensor, 2)
         return pos_tensor
