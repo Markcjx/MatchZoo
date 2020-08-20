@@ -161,7 +161,7 @@ class Mix(BaseModel):
         print('131')
         x = keras.layers.Dropout(rate=self._params['dropout_rate'])(embed_flat)
         print('132')
-        inputs = [input_left, input_right,pos_left_input,pos_right_input]
+        inputs = [input_left, input_right]
         print('133')
         x_out = self._make_output_layer()(x)
         self._backend = keras.Model(inputs=inputs, outputs=x_out)
