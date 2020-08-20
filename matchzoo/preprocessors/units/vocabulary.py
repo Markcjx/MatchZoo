@@ -1,5 +1,5 @@
 from .stateful_unit import StatefulUnit
-
+from matchzoo.datasets.pos_score import POS_SCORE
 
 class Vocabulary(StatefulUnit):
     """
@@ -154,6 +154,7 @@ class MixVocabulary(StatefulUnit):
         self._oov = oov_value
         self._context['term_index'] = self.TermIndex()
         self._context['index_term'] = dict()
+        self._context['pos_score'] = self.POSIndex()
 
     class TermIndex(dict):
         """Map term to index."""
@@ -162,14 +163,27 @@ class MixVocabulary(StatefulUnit):
             """Map out-of-vocabulary terms to index 1."""
             return 1
 
+    class POSIndex(dict):
+
+        def __missing__(self, key):
+            return 0.5
+
+    def load_pos(self):
+        with open(str(POS_SCORE),mode='r',encoding='utf-8') as input_file:
+            for line in input_file.readlines():
+                pos,score = line.strip().split()
+                self._context['pos_score'][pos] = score
+
     def fit(self, tokens: list):
-        """Build a :class:`TermIndex` and a :class:`IndexTerm`."""
+        """Build a :class:`TermIndex` and a :class:`IndexTerm`. and a :class:`POSIndex`"""
         """this token is HanLP term class """
         tokens = [word.word for word in tokens]
         self._context['term_index'][self._pad] = 0
         self._context['term_index'][self._oov] = 1
         self._context['index_term'][0] = self._pad
         self._context['index_term'][1] = self._oov
+        self._context['pos_score'][self._pad] = 0
+        self.load_pos()
         terms = set(tokens)
         for index, term in enumerate(terms):
             self._context['term_index'][term] = index + 2
@@ -177,4 +191,5 @@ class MixVocabulary(StatefulUnit):
 
     def transform(self, input_: list) -> list:
         """Transform a list of tokens to corresponding indices."""
-        return [self._context['term_index'][token] if type(token)==str else self._context['term_index'][token.word] for token in input_]
+        return [self._context['term_index'][token] if type(token) == str else self._context['term_index'][token.word]
+                for token in input_]
