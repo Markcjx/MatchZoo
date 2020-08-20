@@ -79,6 +79,9 @@ class Mix(BaseModel):
             shape=self._params['input_shapes'][0])
         pos_right = Input(name='pos_right',
                          shape=self._params['input_shapes'][1])
+
+        print(pos_left.shape)
+        print(pos_right.shape)
         # input_dpool_index = keras.layers.Input(
         #     name='dpool_index',
         #     shape=[self._params['input_shapes'][0][0],
