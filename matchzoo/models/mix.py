@@ -131,12 +131,14 @@ class Mix(BaseModel):
         # for i in [ngram_product]:
         #     for j in i:
         #         print(j.shape)
-        ngram_product = [multi_layer([idf_mask, ngram_product[i]]) for i in range(len(ngram_product))]
+        products = []
+        idf_product = [multi_layer([idf_mask, ngram_product[i]]) for i in range(len(ngram_product))]
         pos_product = [multi_layer([pos_mask, ngram_product[i]]) for i in range(len(ngram_product))]
-        ngram_product.extend(pos_product)
+        products.extend(idf_product)
+        products.extend(pos_product)
         print('96')
         print('ngram_product shape is %s' % ngram_product[0].shape)
-        ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
+        ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(products)
         print(ngram_output.shape)
         print('100')
         for i in range(self._params['num_blocks']):
