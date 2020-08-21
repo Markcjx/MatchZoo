@@ -76,9 +76,9 @@ class Mix(BaseModel):
         """
         print('1')
         input_left, input_right = self._make_inputs()
-        idf_left_input = Input(name='pos_left',
+        idf_left_input = Input(name='idf_left',
                          shape=self._params['input_shapes'][0])
-        idf_right_input = Input(name='pos_right',
+        idf_right_input = Input(name='idf_right',
                           shape=self._params['input_shapes'][1])
         # pos_left_input = Input(name='pos_left',
         #                  shape=self._params['input_shapes'][0])
@@ -169,7 +169,7 @@ class Mix(BaseModel):
         print('131')
         x = keras.layers.Dropout(rate=self._params['dropout_rate'])(embed_flat)
         print('132')
-        inputs = [input_left, input_right]
+        inputs = [input_left, input_right,idf_left_input,idf_right_input]
         print('133')
         x_out = self._make_output_layer()(x)
         self._backend = keras.Model(inputs=inputs, outputs=x_out)
