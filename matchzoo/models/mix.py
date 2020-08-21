@@ -76,10 +76,18 @@ class Mix(BaseModel):
         """
         print('1')
         input_left, input_right = self._make_inputs()
+        idf_left_input = Input(name='pos_left',
+                         shape=self._params['input_shapes'][0])
+        idf_right_input = Input(name='pos_right',
+                          shape=self._params['input_shapes'][1])
         # pos_left_input = Input(name='pos_left',
         #                  shape=self._params['input_shapes'][0])
         # pos_right_input = Input(name='pos_right',
         #                   shape=self._params['input_shapes'][1])
+        left_reshape = Reshape(self._params['input_shapes'][0] + (1,))
+        right_reshape = Reshape(self._params['input_shapes'][1] + (1,))
+        idf_left = left_reshape(idf_left_input)
+        idf_right = right_reshape(idf_right_input)
         # pos_left = Reshape(tuple(pos_left_input.shape.as_list()[1:]) + (1,))(pos_left_input)
         # pos_right = Reshape(tuple(pos_right_input.shape.as_list()[1:]) + (1,))(pos_right_input)
         # print(pos_left.shape)
@@ -113,13 +121,13 @@ class Mix(BaseModel):
         # right_idf_arr = [keras.layers.MaxPooling1D(pool_size=n, strides=1, padding='same')(right_idf) for n in
         #                  range(1, 4)]
         # print('8')
-        # dot_layer = keras.layers.Dot(2)
-        # multi_layer = keras.layers.Multiply()
+        dot_layer = keras.layers.Dot(2)
+        multi_layer = keras.layers.Multiply()
         # idf_masks = [dot_layer([left, right]) for left in left_idf_arr for right in right_idf_arr]
         # reshape = keras.layers.Reshape(tuple(idf_masks[0].shape.as_list()[1:]) + (1,))
         # idf_masks = [reshape(idf_mask) for idf_mask in idf_masks]
 
-        # idf_mask = dot_layer([left_idf, right_idf])
+        idf_mask = dot_layer([idf_left, idf_right])
         # pos_mask = dot_layer([pos_left, pos_right])
         # print(idf_mask.shape)
         # print(pos_mask.shape)
@@ -131,14 +139,14 @@ class Mix(BaseModel):
         # for i in [ngram_product]:
         #     for j in i:
         #         print(j.shape)
-        # products = []
-        # idf_product = [multi_layer([idf_mask, ngram_product[i]]) for i in range(len(ngram_product))]
+        products = []
+        idf_product = [multi_layer([idf_mask, ngram_product[i]]) for i in range(len(ngram_product))]
         # pos_product = [multi_layer([pos_mask, ngram_product[i]]) for i in range(len(ngram_product))]
-        # products.extend(idf_product)
+        products.extend(idf_product)
         # products.extend(pos_product)
         print('96')
         print('ngram_product shape is %s' % ngram_product[0].shape)
-        ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(ngram_product)
+        ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(products)
         print(ngram_output.shape)
         print('100')
         for i in range(self._params['num_blocks']):
