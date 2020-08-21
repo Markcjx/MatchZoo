@@ -77,21 +77,27 @@ class Mix(BaseModel):
         print('1')
         input_left, input_right = self._make_inputs()
         idf_left_input = Input(name='idf_left',
-                         shape=self._params['input_shapes'][0])
+                               shape=self._params['input_shapes'][0])
         idf_right_input = Input(name='idf_right',
-                          shape=self._params['input_shapes'][1])
+                                shape=self._params['input_shapes'][1])
         pos_left_input = Input(name='pos_left',
-                         shape=self._params['input_shapes'][0])
+                               shape=self._params['input_shapes'][0])
         pos_right_input = Input(name='pos_right',
-                          shape=self._params['input_shapes'][1])
+                                shape=self._params['input_shapes'][1])
+        spatial_left_input = Input(name='spatial_left',
+                                   shape=self._params['input_shapes'][0])
+        spatial_right_input = Input(name='spatial_right',
+                                    shape=self._params['input_shapes'][1])
         left_reshape = Reshape(self._params['input_shapes'][0] + (1,))
         right_reshape = Reshape(self._params['input_shapes'][1] + (1,))
         idf_left = left_reshape(idf_left_input)
         idf_right = right_reshape(idf_right_input)
         pos_left = left_reshape(pos_left_input)
         pos_right = right_reshape(pos_right_input)
-        print(pos_left.shape)
-        print(pos_right.shape)
+        spatial_left = left_reshape(spatial_left_input)
+        spatial_right = right_reshape(spatial_right_input)
+        print(spatial_left.shape)
+        print(spatial_right.shape)
         # input_dpool_index = keras.layers.Input(
         #     name='dpool_index',
         #     shape=[self._params['input_shapes'][0][0],
@@ -129,6 +135,7 @@ class Mix(BaseModel):
 
         idf_mask = dot_layer([idf_left, idf_right])
         pos_mask = dot_layer([pos_left, pos_right])
+        spatial_mask = dot_layer([spatial_left, spatial_right])
         print(idf_mask.shape)
         print(pos_mask.shape)
         # print(idf_mask.shape)
@@ -136,6 +143,7 @@ class Mix(BaseModel):
         reshape = Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
         idf_mask = reshape(idf_mask)
         pos_mask = reshape(pos_mask)
+        spatial_mask = reshape(spatial_mask)
         print('9')
         #
         # for i in [ngram_product]:
@@ -144,8 +152,10 @@ class Mix(BaseModel):
         products = []
         idf_product = [multi_layer([idf_mask, ngram_product[i]]) for i in range(len(ngram_product))]
         pos_product = [multi_layer([pos_mask, ngram_product[i]]) for i in range(len(ngram_product))]
+        spatial_product = [multi_layer([spatial_mask, ngram_product[i]]) for i in range(len(ngram_product))]
         products.extend(idf_product)
         products.extend(pos_product)
+        products.extend(spatial_product)
         print('96')
         print('ngram_product shape is %s' % ngram_product[0].shape)
         ngram_output = keras.layers.Concatenate(axis=-1, name='concate1')(products)
@@ -171,7 +181,8 @@ class Mix(BaseModel):
         print('131')
         x = keras.layers.Dropout(rate=self._params['dropout_rate'])(embed_flat)
         print('132')
-        inputs = [input_left, input_right,idf_left_input,idf_right_input,pos_left_input,pos_right_input]
+        inputs = [input_left, input_right, idf_left_input, idf_right_input, pos_left_input, pos_right_input,
+                  spatial_left_input, spatial_right_input]
         print('133')
         x_out = self._make_output_layer()(x)
         self._backend = keras.Model(inputs=inputs, outputs=x_out)
