@@ -148,7 +148,7 @@ class MixVocabulary(StatefulUnit):
 
     """
 
-    def __init__(self, custom_idf=None, pad_value: str = '<PAD>', oov_value: str = '<OOV>'):
+    def __init__(self, custom_idf={}, pad_value: str = '<PAD>', oov_value: str = '<OOV>'):
         """Vocabulary unit initializer."""
         super().__init__()
         self._pad = pad_value
@@ -192,7 +192,7 @@ class MixVocabulary(StatefulUnit):
         self._context['index_term'][1] = self._oov
         self._context['pos_score'][self._pad] = 0
         self._context['idf_table'][self._pad] = 0
-        if self._custom_idf:
+        if len(self._custom_idf) is not 0:
             self._context['idf_table'].update(self._custom_idf)
         self.load_pos()
         terms = set(tokens)
