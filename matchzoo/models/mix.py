@@ -131,8 +131,8 @@ class Mix(BaseModel):
         # pos_mask = dot_layer([pos_left, pos_right])
         # print(idf_mask.shape)
         # print(pos_mask.shape)
-        # reshape = Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
-        # idf_mask = reshape(idf_mask)
+        reshape = Reshape(tuple(idf_mask.shape.as_list()[1:]) + (1,))
+        idf_mask = reshape(idf_mask)
         # pos_mask = reshape(pos_mask)
         print('9')
         #
