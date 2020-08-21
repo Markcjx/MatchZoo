@@ -1,6 +1,7 @@
 from .stateful_unit import StatefulUnit
 import matchzoo as mz
 
+
 class Vocabulary(StatefulUnit):
     """
     Vocabulary class.
@@ -147,14 +148,16 @@ class MixVocabulary(StatefulUnit):
 
     """
 
-    def __init__(self, pad_value: str = '<PAD>', oov_value: str = '<OOV>'):
+    def __init__(self, custom_idf=None, pad_value: str = '<PAD>', oov_value: str = '<OOV>'):
         """Vocabulary unit initializer."""
         super().__init__()
         self._pad = pad_value
         self._oov = oov_value
+        self._custom_idf = custom_idf
         self._context['term_index'] = self.TermIndex()
         self._context['index_term'] = dict()
         self._context['pos_score'] = self.POSIndex()
+        self._context['idf_table'] = self.IdfIndex()
 
     class TermIndex(dict):
         """Map term to index."""
@@ -168,10 +171,15 @@ class MixVocabulary(StatefulUnit):
         def __missing__(self, key):
             return 0.5
 
+    class IdfIndex(dict):
+
+        def __missing__(self, key):
+            return 0.5
+
     def load_pos(self):
-        with open(str(mz.datasets.pos_score.POS_SCORE),mode='r',encoding='utf-8') as input_file:
+        with open(str(mz.datasets.pos_score.POS_SCORE), mode='r', encoding='utf-8') as input_file:
             for line in input_file.readlines():
-                pos,score = line.strip().split()
+                pos, score = line.strip().split()
                 self._context['pos_score'][pos] = score
 
     def fit(self, tokens: list):
@@ -183,6 +191,9 @@ class MixVocabulary(StatefulUnit):
         self._context['index_term'][0] = self._pad
         self._context['index_term'][1] = self._oov
         self._context['pos_score'][self._pad] = 0
+        self._context['idf_table'][self._pad] = 0
+        if self._custom_idf:
+            self._context['idf_table'].update(self._custom_idf)
         self.load_pos()
         terms = set(tokens)
         for index, term in enumerate(terms):
