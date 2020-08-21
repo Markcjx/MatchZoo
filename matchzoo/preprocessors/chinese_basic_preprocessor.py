@@ -108,7 +108,7 @@ class ChineseBasicPreprocessor(BasePreprocessor):
         #                                     mode='right', verbose=verbose)
         # self._context['filter_unit'] = fitted_filter_unit
 
-        vocab_unit = build_mix_vocab_unit(data_pack, verbose=verbose)
+        vocab_unit = build_mix_vocab_unit(data_pack, cunstom_idf, verbose=verbose)
         self._context['vocab_unit'] = vocab_unit
 
         vocab_size = len(vocab_unit.state['term_index'])

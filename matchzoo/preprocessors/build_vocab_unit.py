@@ -46,8 +46,8 @@ def built_bert_vocab_unit(vocab_path: str) -> BertVocabulary:
 
 
 def build_mix_vocab_unit(
-        cunstom_idf,
         data_pack: DataPack,
+        cunstom_idf = None,
         mode: str = 'both',
         verbose: int = 1
 ) -> Vocabulary:
