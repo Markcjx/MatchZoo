@@ -182,10 +182,11 @@ class Mix(BaseModel):
         print('130')
         embed_flat = keras.layers.Flatten()(embed_pool)
         print('131')
-        x = keras.layers.Dropout(rate=self._params['dropout_rate'])(embed_flat)
-        x = keras.layers.Dense(self._params['dense_size'],activation='relu')(x)
-        x = keras.layers.Dense(self._params['dense_size'], activation='relu')(x)
 
+        x = keras.layers.Dense(self._params['dense_size'],activation='relu')(embed_flat)
+        x = keras.layers.Dropout(rate=self._params['dropout_rate'])(x)
+        x = keras.layers.Dense(self._params['dense_size'], activation='relu')(x)
+        x = keras.layers.Dropout(rate=self._params['dropout_rate'])(x)
         print('132')
         inputs = [input_left, input_right, idf_left_input, idf_right_input, pos_left_input, pos_right_input]
         print('133')
