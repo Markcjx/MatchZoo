@@ -101,12 +101,12 @@ class Mix(BaseModel):
         # spatial_right = right_reshape(spatial_right_input)
         # print(pos_left.shape)
         # print(pos_right.shape)
-        input_dpool_index = keras.layers.Input(
-            name='dpool_index',
-            shape=[self._params['input_shapes'][0][0],
-                   self._params['input_shapes'][1][0],
-                   2],
-            dtype='int32')
+        # input_dpool_index = keras.layers.Input(
+        #     name='dpool_index',
+        #     shape=[self._params['input_shapes'][0][0],
+        #            self._params['input_shapes'][1][0],
+        #            2],
+        #     dtype='int32')
 
         embedding = self._make_embedding_layer()
         embed_left = embedding(input_left)
@@ -170,11 +170,11 @@ class Mix(BaseModel):
             )
         print('128')
         # Dynamic Pooling
-        dpool_layer = matchzoo.layers.DynamicPoolingLayer(
-            *self._params['dpool_size'])
-        # pool_layer = keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(1, 1), padding='same')
+        # dpool_layer = matchzoo.layers.DynamicPoolingLayer(
+        #     *self._params['dpool_size'])
+        pool_layer = keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(3, 3), padding='same')
         print('129')
-        embed_pool = dpool_layer([ngram_output,input_dpool_index])
+        embed_pool = pool_layer(ngram_output)
         print('130')
         embed_flat = keras.layers.Flatten()(embed_pool)
         print('131')
