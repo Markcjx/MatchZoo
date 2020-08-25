@@ -174,7 +174,7 @@ class Mix(BaseModel):
             *self._params['dpool_size'])
         # pool_layer = keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(1, 1), padding='same')
         print('129')
-        embed_pool = dpool_layer(ngram_output)
+        embed_pool = dpool_layer([ngram_output,input_dpool_index])
         print('130')
         embed_flat = keras.layers.Flatten()(embed_pool)
         print('131')
