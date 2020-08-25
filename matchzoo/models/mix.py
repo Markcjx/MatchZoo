@@ -172,7 +172,7 @@ class Mix(BaseModel):
         # Dynamic Pooling
         # dpool_layer = matchzoo.layers.DynamicPoolingLayer(
         #     *self._params['dpool_size'])
-        pool_layer = keras.layers.MaxPooling2D(pool_size=(4, 4), strides=(4, 4), padding='same')
+        pool_layer = keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(1, 1), padding='same')
         print('129')
         embed_pool = pool_layer(ngram_output)
         print('130')
