@@ -184,7 +184,7 @@ class Mix(BaseModel):
         x = keras.layers.Dense(self._params['dense_size'], activation='relu')(x)
         x = keras.layers.Dropout(rate=self._params['dropout_rate'])(x)
         print('132')
-        inputs = [input_left, input_right,pos_left_input,pos_right_input,idf_left_input,idf_right_input]
+        inputs = [input_left, input_right,pos_left_input,pos_right_input,idf_left_input,idf_right_input,input_dpool_index]
         print('133')
         x_out = self._make_output_layer()(x)
         self._backend = keras.Model(inputs=inputs, outputs=x_out)
