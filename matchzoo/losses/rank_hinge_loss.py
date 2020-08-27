@@ -54,6 +54,7 @@ class RankHingeLoss(Loss):
                 layers.Lambda(
                     lambda a: a[(neg_idx + 1)::(self._num_neg + 1), :],
                     output_shape=(1,))(y_pred))
+
         y_neg = tf.concat(y_neg, axis=-1)
         y_neg = tf.reduce_mean(y_neg, axis=-1, keepdims=True)
         loss = tf.maximum(0., self._margin + y_neg - y_pos)

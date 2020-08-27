@@ -97,6 +97,7 @@ class Mix(BaseModel):
         idf_right = right_reshape(idf_right_input)
         pos_left = left_reshape(pos_left_input)
         pos_right = right_reshape(pos_right_input)
+        keras.layers.GlobalMaxPool1D()
         # spatial_left = left_reshape(spatial_left_input)
         # spatial_right = right_reshape(spatial_right_input)
         # print(pos_left.shape)
